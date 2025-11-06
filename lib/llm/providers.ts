@@ -1,6 +1,5 @@
 import Groq from 'groq-sdk'
 import OpenAI from 'openai'
-import Anthropic from '@anthropic-ai/sdk'
 import axios from 'axios'
 
 // ==============================================================================
@@ -198,21 +197,35 @@ export class OpenAIProvider {
 // CLAUDE (Anthropic) Provider
 // ==============================================================================
 export class ClaudeProvider {
-  private client: Anthropic
+  private client: any = null
+  private apiKey: string
 
   constructor(apiKey?: string) {
-    this.client = new Anthropic({
-      apiKey: apiKey || process.env.ANTHROPIC_API_KEY || '',
-    })
+    this.apiKey = apiKey || process.env.ANTHROPIC_API_KEY || ''
+  }
+
+  private async getClient() {
+    if (!this.client && this.apiKey) {
+      const { default: Anthropic } = await import('@anthropic-ai/sdk')
+      this.client = new Anthropic({
+        apiKey: this.apiKey,
+      })
+    }
+    return this.client
   }
 
   async chat(messages: any[], model = 'claude-3-5-sonnet-20241022', options: any = {}) {
     try {
+      const client = await this.getClient()
+      if (!client) {
+        throw new Error('Claude API key not configured')
+      }
+
       // Extract system message if present
       const systemMessage = messages.find((m: any) => m.role === 'system')?.content || ''
       const chatMessages = messages.filter((m: any) => m.role !== 'system')
 
-      const response = await this.client.messages.create({
+      const response = await client.messages.create({
         model,
         max_tokens: options.maxTokens ?? 4000,
         temperature: options.temperature ?? 0.7,
@@ -241,10 +254,15 @@ export class ClaudeProvider {
 
   async streamChat(messages: any[], model = 'claude-3-5-sonnet-20241022', options: any = {}) {
     try {
+      const client = await this.getClient()
+      if (!client) {
+        throw new Error('Claude API key not configured')
+      }
+
       const systemMessage = messages.find((m: any) => m.role === 'system')?.content || ''
       const chatMessages = messages.filter((m: any) => m.role !== 'system')
 
-      const stream = await this.client.messages.create({
+      const stream = await client.messages.create({
         model,
         max_tokens: options.maxTokens ?? 4000,
         temperature: options.temperature ?? 0.7,

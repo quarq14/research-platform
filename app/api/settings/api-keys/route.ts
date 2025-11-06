@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get provider ID
-    const { data: providerData, error: providerError } = await supabase
+    let { data: providerData, error: providerError } = await supabase
       .from('api_providers')
       .select('id')
       .eq('name', provider)
@@ -127,6 +127,8 @@ export async function POST(request: NextRequest) {
           { status: 500 }
         )
       }
+
+      providerData = newProvider
     }
 
     // Check if user already has a key for this provider

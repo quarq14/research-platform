@@ -22,7 +22,7 @@ export default async function ToolsLayout({ children }: { children: React.ReactN
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <DashboardHeader />
+      <DashboardHeader user={user} />
       {children}
     </div>
   )

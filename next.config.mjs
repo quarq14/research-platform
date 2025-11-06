@@ -5,6 +5,7 @@ const nextConfig = {
       bodySizeLimit: '10mb',
     },
   },
+  serverExternalPackages: ['@anthropic-ai/sdk'],
   images: {
     remotePatterns: [
       {

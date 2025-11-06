@@ -1,4 +1,9 @@
 import { generateText } from "ai"
+import { createGroq } from "@ai-sdk/groq"
+
+const groq = createGroq({
+  apiKey: process.env.GROQ_API_KEY,
+})
 
 export function isGroqConfigured(): boolean {
   return !!process.env.GROQ_API_KEY
@@ -9,7 +14,7 @@ export async function chatWithContext(message: string, context: string[]): Promi
     const contextText = context.join("\n\n")
 
     const { text } = await generateText({
-      model: "groq/llama-3.1-70b-versatile",
+      model: groq("llama-3.1-70b-versatile"),
       prompt: `You are an academic research assistant. Use the following context from academic papers to answer the question.
 
 Context:

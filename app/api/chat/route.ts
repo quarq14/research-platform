@@ -4,6 +4,7 @@ import { EmbeddingService } from '@/lib/embeddings/service'
 import { GroqProvider } from '@/lib/llm/providers'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 export const maxDuration = 60
 
 interface Message {

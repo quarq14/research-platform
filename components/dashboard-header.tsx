@@ -15,7 +15,9 @@ export function DashboardHeader({ user }: { user: User }) {
   const handleSignOut = async () => {
     setIsLoading(true)
     const supabase = createClient()
-    await supabase.auth.signOut()
+    if (supabase) {
+      await supabase.auth.signOut()
+    }
     router.push("/auth/login")
     router.refresh()
   }

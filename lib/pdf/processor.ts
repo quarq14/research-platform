@@ -105,17 +105,18 @@ export async function extractTextWithPDFJS(buffer: Buffer): Promise<PDFProcessin
     }
 
     const metadata = await pdfDoc.getMetadata()
+    const info = metadata.info as any
 
     return {
       text: fullText,
       pages,
       metadata: {
-        title: metadata.info?.Title,
-        author: metadata.info?.Author,
-        subject: metadata.info?.Subject,
-        keywords: metadata.info?.Keywords,
-        creator: metadata.info?.Creator,
-        producer: metadata.info?.Producer,
+        title: info?.Title,
+        author: info?.Author,
+        subject: info?.Subject,
+        keywords: info?.Keywords,
+        creator: info?.Creator,
+        producer: info?.Producer,
         totalPages: pdfDoc.numPages,
       },
       ocrApplied: false,
