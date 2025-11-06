@@ -84,10 +84,10 @@ Be precise and academic in your responses.`,
         },
       ],
       temperature: 0.7,
-      maxOutputTokens: 2000,
+      maxTokens: 2000,
     })
 
-    return result.toUIMessageStreamResponse()
+    return result.toDataStreamResponse()
   } catch (error) {
     console.error("[v0] Chat PDF API error:", error)
     return new Response(JSON.stringify({ error: "Error processing chat" }), {

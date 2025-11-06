@@ -1,18 +1,15 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { Toaster } from "sonner"
+import { ThemeProvider } from "next-themes"
 import "./globals.css"
-import { AuthProvider } from "@/contexts/AuthContext"
-import { ChatbotWrapper } from "@/components/chatbot-wrapper"
-
-const geistSans = Geist({ subsets: ["latin"] })
-const geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Academic AI Platform",
-  description: "AI-powered academic writing and research assistant",
-  generator: "v0.app",
+  title: "Academic Research Platform - AI-Powered Writing & Research",
+  description: "Professional academic writing assistant with multi-PDF chat, citation management, plagiarism checking, and AI-powered research tools.",
+  keywords: "academic writing, research assistant, citation manager, plagiarism checker, AI writing, PDF chat",
 }
 
 export default function RootLayout({
@@ -21,11 +18,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider>{children}</AuthProvider>
-        <ChatbotWrapper />
-        <Analytics />
+    <html lang="en" suppressHydrationWarning>
+      <body className="font-sans antialiased">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          {children}
+          <Toaster position="top-right" richColors />
+          <Analytics />
+          <SpeedInsights />
+        </ThemeProvider>
       </body>
     </html>
   )

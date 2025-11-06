@@ -22,7 +22,7 @@ export default async function CitationsLayout({ children }: { children: React.Re
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <DashboardHeader />
+      <DashboardHeader user={user} />
       {children}
     </div>
   )

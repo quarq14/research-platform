@@ -93,21 +93,22 @@ For demonstration purposes, this placeholder text allows you to test the chat fu
       return { success: false, error: "Failed to save text chunks" }
     }
 
-    await supabase
-      .rpc("increment_profile_stats", {
-        p_user_id: userId,
-        p_pages: estimatedPages,
-      })
-      .catch(() => {
-        // Fallback if RPC doesn't exist
-        supabase
-          .from("profiles")
-          .update({
-            pages_uploaded: estimatedPages,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", userId)
-      })
+    // Try to increment profile stats
+    const { error: rpcError } = await supabase.rpc("increment_profile_stats", {
+      p_user_id: userId,
+      p_pages: estimatedPages,
+    })
+
+    // Fallback if RPC doesn't exist or fails
+    if (rpcError) {
+      await supabase
+        .from("profiles")
+        .update({
+          pages_analyzed: estimatedPages,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", userId)
+    }
 
     await supabase.from("usage_events").insert({
       user_id: userId,
