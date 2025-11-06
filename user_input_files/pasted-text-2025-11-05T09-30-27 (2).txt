@@ -1,0 +1,229 @@
+Comprehensive build-and-deliver prompt for MiniMax M2 (English). Role: academic AI software engineer and full-stack lead. Deliver a production-grade, fully working system with bilingual (Turkish/English) UI, deployed to Vercel, with Supabase and all integrations automatically provisioned. Do not ask for approval; make optimal technical decisions and complete all steps end-to-end.
+
+You are: MiniMax M2 acting as:
+- Principal full-stack engineer (frontend, backend, database, ops)
+- Academic research assistant (scholarly workflows, citations, integrity)
+- Product/QA engineer (UX polish, tests, reliability)
+- DevOps engineer (CI/CD, monitoring, deployment)
+- Data engineer (RAG pipelines, embeddings, PDF parsing)
+- Security engineer (auth, RLS, PII, compliance)
+
+Core constraints and operation mode:
+- Sustained operation: Work continuously until all deliverables are complete.
+- Interleaved thinking: Continuously self-check, course-correct, and refactor; do not wait for user nudges.
+- Robustness: No bugs, no missing files, no edit failures. Clean builds. All pages and endpoints functional.
+- Autonomy: Provision and configure Supabase, database, storage, pgvector, OAuth, and default API keys where free tiers are available. If a paid key is required, implement a seamless fallback free path and a secure settings UI for user-provided keys without blocking the app.
+- Deployment target: Vercel; optimize for edge/runtime compatibility and cold start performance.
+- Language and UI: Fully bilingual Turkish and English; runtime toggle; all texts localized; SEO metadata localized.
+- Ethics and integrity: The system must prevent academic dishonesty. Provide citation, transparency, originality, and disclosure features. Avoid any deliberate evasion behaviors. “Humanizer” is implemented as stylistic naturalization and clarity assistance, not as an evasion tool. AI detection is presented with limitations.
+
+Product vision
+Build an AI-assisted academic writing and research web app that:
+- Helps write academic articles, literature reviews, assignments, and blog posts with correct citations and no plagiarism.
+- Lets users upload one or multiple PDFs and chat with them; generates citations from those PDFs (APA, MLA, Chicago, etc.) with page-level grounding.
+- Searches reliable scholarly sources (Semantic Scholar API, OpenAlex API, Crossref API; optionally SerpAPI’s Google Scholar engine if available and compliant), pulling metadata and PDFs where legally accessible.
+- Provides RAG-based drafting with inline citations and a reference list.
+- Offers AI assistant chatbot for the whole site (default free provider via Groq) and optional custom models via OpenRouter or user-provided keys.
+- Includes utilities: originality checking (plagiarism check via a free/paid API option), AI-content detection (with caveats), paraphrasing/rephrasing for clarity, and citation manager.
+- Supports Google login, subscription pricing comparable to author.ai, and usage-based quotas.
+- Is performant, reliable, and easy to use.
+
+High-level architecture and tech stack
+- Frontend: Next.js 15 (App Router, Edge-ready), TypeScript, React Server Components, Tailwind CSS, shadcn/ui + Radix UI, next-intl for i18n (TR/EN), react-aria for a11y. Vercel Analytics/Speed Insights enabled.
+- Backend: Next.js API routes and Vercel Edge/Node functions as needed; server-side TypeScript; Zod for validation; LangChain/LLM orchestration where helpful; background jobs via Vercel Cron and Supabase Functions.
+- Auth and DB: Supabase (Postgres 15, pgvector, RLS, Policies), Supabase Auth with Google OAuth, Supabase Storage for file uploads.
+- RAG/Embeddings: pgvector in Supabase; embeddings provider hierarchy (free default first). Prefer open/free embeddings such as nomic-embed-text or bge base via an available free inference endpoint; allow user to switch to paid providers (OpenAI, Cohere, Voyage) in settings.
+- PDF ingestion: pdf.js + pdf-parse; robust PDF text extraction with page numbers and coordinates; Tesseract WASM for scanned PDFs (OCR fallback). Optional GROBID integration for citation extraction if free endpoint available; otherwise Crossref metadata enrichment.
+- LLM providers:
+  - Primary agent model: MiniMax M2 via MiniMax native API for interleaved thinking.
+  - Site chatbot default: Groq API (free tier) with a strong open model (e.g., Llama 3.1 70B or equivalent), with graceful fallback if rate-limited.
+  - Optional: OpenRouter for user-supplied keys (note: OpenRouter does not support MiniMax interleaved thinking; document limitation).
+  - MCP integration: Context 7 MCP for contextual fetch, wired into tools for research/citation enrichment.
+- Plagiarism and AI detection:
+  - Plagiarism: integrate Copyleaks or PlagiarismCheck.org API (paid) with a free-limited fallback using heuristic overlap checks plus web search for suspected matches where permitted; clearly label limitations.
+  - AI detection: integrate Copyleaks AI detection or Originality.ai if keys provided; otherwise provide an on-device heuristic detector with clear disclaimers about limited accuracy.
+- Payments: Stripe billing (subscriptions and usage credits). Free tier with limits. Pricing roughly aligned with author.ai (comparable tiers and price points); exact numbers adjustable in configuration.
+- Caching and performance: Vercel Edge caching for GETs, SWR/React Query on client, Redis (Upstash) optional for rate limiting and ephemeral caches; otherwise Supabase as primary store.
+- Observability: Sentry for error monitoring, OpenTelemetry traces, health checks, structured server logs.
+
+Core features and flows
+- Onboarding and auth
+  - Google Sign-in via Supabase Auth.
+  - Free tier activated automatically with default quotas.
+  - i18n language picker (TR/EN) persisted in profile.
+- Dashboard
+  - Recent documents/projects, usage meters (tokens, pages analyzed), subscription status, quick actions.
+- Document management
+  - Upload PDFs (single or multiple), drag and drop; store in Supabase Storage; virus/MIME checks.
+  - Extraction pipeline: text, pages, citations; chunking and vectorization (configurable chunk sizes, overlap).
+  - Automatic metadata enrichment via Crossref/OpenAlex; deduplication across uploads.
+  - Citation manager: maintain references with CSL-JSON; render APA, MLA, Chicago via citeproc-js.
+- Multi-PDF chat
+  - Retrieval: hybrid search (vector + BM25) from Supabase; source grounding with page numbers.
+  - Responses: inline citations [Author, Year, p. X], and reference list; export to .docx/.md/.pdf.
+  - Safety: refuse to fabricate citations; if uncertain, ask to fetch sources; present confidence and links.
+- Writing workspace
+  - Modes: academic article, literature review, assignment, blog post.
+  - Goals: target word count, tone, outline structure; citation style selection; plagiarism guardrails on.
+  - Drafting: section-by-section with RAG; enforce citations on borrowed claims; build auto reference list.
+  - Tools: paraphrase for clarity, summarize, expand, restructure, style polishing; originality check button; AI content disclosure assistant.
+- Scholarly search
+  - Semantic Scholar API, OpenAlex API, Crossref API; fetch abstracts/metadata; attempt PDF retrieval through legal OA links (Unpaywall/OpenAlex).
+  - Optional Google Scholar via SerpAPI engine if user adds key and accepts terms; otherwise disabled.
+  - Insert citations into workspace with CSL formatting.
+- Integrity utilities
+  - Originality checker with report and highlighted overlaps; configurable sensitivity.
+  - AI-content detection report with strong disclaimers.
+  - “Humanizer” as “Naturalize and clarity rewriter”: Improve flow and human-like style without intent to evade detection; show side-by-side diffs; enforce factual consistency.
+  - Disclosure tools: generate an “AI assistance disclosed” section per journal/school policy templates.
+- Site chatbot
+  - Always-available assistant that knows all site features and can guide workflows; default Groq-backed; can switch to MiniMax where supported; use toolformer-like actions to navigate user to features.
+- API keys and providers
+  - Settings page: add keys for Groq, OpenRouter, Copyleaks, SerpAPI, etc.
+  - Safe storage in Supabase with encryption at rest; masked display; per-user scoping.
+- Pricing and billing
+  - Free tier (limited tokens/pages/searches).
+  - Pro tier comparable to author.ai pricing; monthly/annual.
+  - Pay-as-you-go credits for heavy usage (PDF pages, plagiarism scans).
+  - Stripe Customer Portal and webhooks; RLS ensure tenant isolation.
+- Export and collaboration
+  - Export to DOCX, Markdown, PDF (server-rendered, paginated, with citations).
+  - Share read-only links; team/organization support (invite via email; per-seat billing).
+- Admin
+  - Feature flags, plan limits, usage dashboards, rate limits, abuse detection.
+
+Data model (Supabase Postgres with RLS)
+- users (id, email, created_at)
+- profiles (user_id PK, name, locale, plan, usage counters, created_at, updated_at)
+- documents (id, user_id, project_id, title, status, language, source_type, created_at, updated_at)
+- files (id, document_id, storage_path, mime, size, pages, ocr_applied, hash)
+- chunks (id, document_id, file_id, page, text, embedding vector, citations_json, tokens)
+- sources (id, doi, url, title, authors_json, journal, year, venue, abstract, pdf_url, csl_json)
+- doc_sources (id, document_id, source_id, added_by, created_at)
+- chats (id, user_id, title, created_at, updated_at)
+- messages (id, chat_id, role, content, citations_json, tokens, created_at)
+- projects (id, user_id, title, description, created_at, updated_at)
+- citations (id, document_id, source_id, style, intext, reference, page)
+- api_providers (id, name, type, enabled_default)
+- api_keys (id, user_id, provider_id, encrypted_key, created_at)
+- plans (id, name, limits_json, price_monthly, price_yearly)
+- subscriptions (id, user_id, plan_id, stripe_sub_id, status, renew_at)
+- usage_events (id, user_id, type, amount, unit, ref_id, created_at)
+- invoices (id, user_id, stripe_invoice_id, amount, currency, status, created_at)
+- rate_limits (id, user_id, window, count, reset_at)
+- audit_logs (id, user_id, action, entity, entity_id, metadata, created_at)
+- organizations, memberships (optional for teams)
+
+Security and RLS
+- Enable RLS on all tenant tables.
+- Policies: users can only access own rows; team membership gates org data.
+- Signed URLs for file downloads; virus scanning on upload; limit file types and size.
+- Secrets stored in Vercel env and Supabase secrets; never expose to client.
+
+RAG pipeline details
+- Chunking: semantic or fixed window (e.g., 800–1200 tokens with 15% overlap).
+- Embeddings: default to free/open embedding endpoint; configurable; store in pgvector with HNSW index.
+- Retrieval: hybrid (vector cosine + BM25 via pg_trgm/tsvector), rerank with cross-encoder (if available, optional).
+- Grounding: include page numbers; exact quotes with spans; citation objects with CSL-JSON.
+- Generation: draft with prompt templates enforcing citation after claims; avoid fabricated references; when no source is found, either search or mark as “needs source”.
+- Deduplication and normalization of references; render via citeproc-js for chosen style.
+
+LLM provider strategy and MiniMax specifics
+- Use MiniMax M2 via MiniMax native API for any agentic tasks requiring interleaved thinking. Do not use OpenRouter for M2 because it disables interleaved thinking.
+- Use Groq as the default always-free site chatbot backend; select a fast, accurate open model (e.g., Llama 3.1 70B). Implement graceful degradation when rate-limited.
+- Allow OpenRouter for user-selected models and tasks; clearly note limitations regarding interleaved thinking for M2.
+- Implement MCP client support and wire Context 7 MCP to fetch additional context while drafting or answering.
+
+Plagiarism and AI detection implementation
+- Plagiarism: integrate Copyleaks or PlagiarismCheck.org via API with reports; free fallback: heuristic n-gram overlap against known sources plus API-based web search where allowed; flag uncertainty.
+- AI detection: integrate Copyleaks/Originality.ai if keys present; otherwise a heuristic detector with clear limitations. Display guidance to users that detectors can be unreliable.
+- Humanizer: implement as stylistic naturalization and clarity improvement with factual consistency checks; never designed to bypass detection; enforce citation retention and integrity.
+
+Bilingual UI (TR/EN)
+- next-intl with messages for all UI text; language toggle in navbar; persist preference.
+- Provide Turkish translations for: navigation, settings, onboarding, action labels, errors, FAQ, pricing, features.
+- SEO tags localized; sitemap includes language alternates.
+
+Performance and DX
+- TypeScript strict mode, ESLint, Prettier.
+- pnpm; Turbopack; image optimization; font optimization.
+- Edge runtime for chat endpoints where suitable; Node runtime for heavy tasks.
+- Streaming responses with server actions; progressive rendering.
+- Caching of metadata fetches; ETag/Last-Modified for file assets.
+
+Testing and QA
+- Unit tests (Vitest) for utilities and citation renderer.
+- Integration tests for APIs (Supertest).
+- E2E tests (Playwright) covering onboarding, upload, chat, drafting, citations, export, payments.
+- Load test critical endpoints with k6; ensure no memory leaks.
+- Lint, type-check, test gates in CI.
+
+CI/CD and deployment
+- GitHub repository initialized by you with full code.
+- GitHub Actions: install, lint, test, build, deploy to Vercel via token.
+- Supabase CLI: automatic project creation, migration apply, seeding, enabling pgvector; store access token securely; generate service role key for server functions.
+- Vercel: project auto-created, env vars set, domains configured; analytics enabled.
+- Post-deploy smoke tests and synthetic checks; share production URL.
+
+Auto-provisioning and configuration
+- Without asking for approval, do:
+  - Create Supabase project (US/EU region optimal by latency), enable pgvector, set auth providers (Google), create storage buckets, apply SQL migrations and RLS policies, seed plans and defaults.
+  - Create Vercel project and link GitHub repo; set env vars; configure build settings and Edge/Node functions.
+  - Obtain and integrate free-tier keys where possible (Groq, OpenAlex, Semantic Scholar); store as Vercel env and Supabase secrets.
+  - If any required provider blocks automated key creation, implement a working free fallback and a settings UI for later self-service keys; do not block deployment.
+
+Environment variables (create and populate)
+- NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_DEFAULT_LOCALE, NEXT_PUBLIC_SUPPORTED_LOCALES
+- SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+- SUPABASE_JWT_SECRET
+- GROQ_API_KEY (default; free-tier)
+- MINIMAX_API_KEY (for M2, native)
+- OPENALEX_BASE_URL, SEMANTIC_SCHOLAR_API_KEY (optional)
+- STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, NEXT_PUBLIC_STRIPE_PRICE_IDS
+- SENTRY_DSN (optional), OTEL_EXPORTER_OTLP_ENDPOINT (optional)
+- OPTIONAL: OPENROUTER_API_KEY, COPYLEAKS_KEYS, SERPAPI_KEY, UPSTASH_REDIS_URL/TOKEN
+
+Pages and routes (non-exhaustive)
+- / (Home, features, pricing, FAQ; localized TR/EN)
+- /app (Dashboard)
+- /app/upload, /app/documents/[id], /app/chat/[id], /app/write/[id]
+- /app/sources, /app/citations
+- /app/settings/profile, /app/settings/providers, /app/settings/billing
+- /admin (flags, plans, usage)
+- API routes: /api/upload, /api/extract, /api/embeddings, /api/chat, /api/rag, /api/plagiarism, /api/detect, /api/citations, /api/search, /api/webhooks/stripe
+- Edge functions where low-latency streaming is needed.
+
+UX details
+- Clear callouts on academic integrity; show source grounding preview.
+- Inline suggestion chips for adding citations after claims.
+- Reference sidebar with drag-to-insert in-text citations.
+- Export preview with citation style switcher.
+- Accessibility: keyboard navigation, ARIA labels, high-contrast theme option.
+
+Acceptance criteria
+- All routes functional, zero TypeScript errors, clean build on Vercel.
+- Upload multiple PDFs, chat grounded with page numbers, create a draft with APA/MLA/Chicago references, and export to DOCX/PDF successfully.
+- Search scholarly sources and insert citations; references normalized and deduplicated.
+- Google login works; free tier limits enforced; Stripe test mode subscriptions work; usage metering and rate limits in place.
+- Site chatbot usable without user-provided keys (default free provider).
+- Settings allow adding keys for providers and switching models.
+- i18n complete for TR and EN across all user-facing text.
+- Tests pass in CI; monitoring and error reporting enabled; no missing assets or .env keys; migrations applied.
+- Deployed to a live Vercel URL; share repo link and deployment URL; include admin test account credentials securely via secret note.
+
+Deliverables to return
+- GitHub repository URL with full source.
+- Vercel production deployment URL.
+- Supabase project ID and SQL migrations folder.
+- .env.example with all variables.
+- Admin test account (email, temp password) and test Stripe customer (in test mode) delivered via secure secret block.
+- Short runbook: operations, rotation of keys, incident response, backup/restore steps.
+
+Important MiniMax M2 execution guidance
+- Use your interleaved thinking to plan, generate, test, and fix iteratively until everything runs end-to-end.
+- Prefer MiniMax native API for any agentic coding steps; do not rely on OpenRouter for M2 due to lack of interleaved thinking support.
+- Use MCP (Context 7 MCP) to retrieve helpful context while coding, citations, or search.
+- Be cost-conscious; default to free/cheap providers; provide graceful fallbacks.
+- Never fabricate citations or sources; verify via APIs; when uncertain, state uncertainty and prefer to search.
+
+Begin now. Perform the entire implementation, provisioning, deployment, and testing. Return the deliverables listed, along with brief release notes and a smoke-test transcript showing key user flows working in both Turkish and English.

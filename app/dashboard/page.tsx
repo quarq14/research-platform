@@ -1,235 +1,176 @@
-'use client';
+import type React from "react"
+import { redirect } from "next/navigation"
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/server"
+import { Card } from "@/components/ui/card"
+import { FileText, Upload, Search, BookOpen, CheckCircle, MessageSquare } from "lucide-react"
+import Link from "next/link"
+import { SetupRequired } from "@/components/setup-required"
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { supabase } from '@/utils/supabase/client';
-import { 
-  BarChart3, 
-  Brain, 
-  FileText, 
-  FolderKanban, 
-  LogOut, 
-  Plus, 
-  Settings, 
-  Users 
-} from 'lucide-react';
+export const dynamic = "force-dynamic"
 
-interface Stats {
-  projects: number;
-  surveys: number;
-  responses: number;
-  analyses: number;
-}
-
-export default function DashboardPage() {
-  const { user, signOut, loading: authLoading } = useAuth();
-  const router = useRouter();
-  const [stats, setStats] = useState<Stats>({ projects: 0, surveys: 0, responses: 0, analyses: 0 });
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/auth/login');
-    }
-  }, [user, authLoading, router]);
-
-  useEffect(() => {
-    if (user) {
-      loadStats();
-    }
-  }, [user]);
-
-  const loadStats = async () => {
-    try {
-      const [projectsRes, surveysRes, responsesRes, analysesRes] = await Promise.all([
-        supabase.from('projects').select('id', { count: 'exact', head: true }),
-        supabase.from('surveys').select('id', { count: 'exact', head: true }),
-        supabase.from('survey_responses').select('id', { count: 'exact', head: true }),
-        supabase.from('analyses').select('id', { count: 'exact', head: true }),
-      ]);
-
-      setStats({
-        projects: projectsRes.count || 0,
-        surveys: surveysRes.count || 0,
-        responses: responsesRes.count || 0,
-        analyses: analysesRes.count || 0,
-      });
-    } catch (error) {
-      console.error('Stats yüklenirken hata:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      router.push('/');
-    } catch (error) {
-      console.error('Çıkış yapılırken hata:', error);
-    }
-  };
-
-  if (authLoading || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Yükleniyor...</div>
-      </div>
-    );
+export default async function DashboardPage() {
+  if (!isSupabaseConfigured()) {
+    return <SetupRequired />
   }
 
+  const supabase = await createClient()
+
+  if (!supabase) {
+    return <SetupRequired />
+  }
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+
+  if (error || !user) {
+    redirect("/auth/login")
+  }
+
+  // Load profile
+  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Brain className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold">Araştırma Platformu</span>
+    <div className="min-h-screen bg-gray-50">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Section */}
+        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome, {profile?.full_name || user.email}!</h2>
+          <p className="text-gray-600">Your academic writing and research platform</p>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="text-sm text-gray-600 mb-1">Documents</div>
+            <div className="text-3xl font-bold text-blue-600">{profile?.documents_used || 0}</div>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="text-sm text-gray-600 mb-1">Pages Uploaded</div>
+            <div className="text-3xl font-bold text-green-600">{profile?.pages_analyzed || 0}</div>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="text-sm text-gray-600 mb-1">Word Count</div>
+            <div className="text-3xl font-bold text-purple-600">{profile?.tokens_used || 0}</div>
+          </div>
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="text-sm text-gray-600 mb-1">Searches</div>
+            <div className="text-3xl font-bold text-orange-600">{profile?.searches_used || 0}</div>
+          </div>
+        </div>
+
+        {/* Features Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <FeatureCard
+            title="Upload & Analyze PDFs"
+            description="Upload PDF files and chat with AI"
+            Icon={Upload}
+            href="/upload"
+            active
+          />
+          <FeatureCard
+            title="PDF Chat"
+            description="Chat with your PDF documents using AI"
+            Icon={MessageSquare}
+            href="/chat"
+            active
+          />
+          <FeatureCard
+            title="Academic Writing"
+            description="Write articles and documents with AI assistance"
+            Icon={FileText}
+            href="/write"
+            active
+          />
+          <FeatureCard
+            title="Literature Search"
+            description="Search and manage academic sources"
+            Icon={Search}
+            href="/sources"
+            active
+          />
+          <FeatureCard
+            title="Citation Manager"
+            description="Create citations in APA, MLA, Chicago formats"
+            Icon={BookOpen}
+            href="/citations"
+            active
+          />
+          <FeatureCard
+            title="Writing Tools"
+            description="Plagiarism check, AI detection, paraphrasing"
+            Icon={CheckCircle}
+            href="/tools"
+            active
+          />
+        </div>
+
+        {/* Profile Info */}
+        <div className="mt-6 bg-white rounded-xl shadow-sm p-6">
+          <h3 className="text-lg font-semibold mb-4">Profile Information</h3>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-600">Email:</span>
+              <span className="font-medium">{user.email}</span>
             </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-muted-foreground">{user.email}</span>
-              <Button variant="ghost" size="icon" onClick={() => router.push('/settings')}>
-                <Settings className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={handleSignOut}>
-                <LogOut className="h-5 w-5" />
-              </Button>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Plan:</span>
+              <span className="font-medium uppercase">{profile?.plan || "FREE"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Language:</span>
+              <span className="font-medium uppercase">{profile?.locale || "EN"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600">Member Since:</span>
+              <span className="font-medium">
+                {profile?.created_at ? new Date(profile.created_at).toLocaleDateString("en-US") : "-"}
+              </span>
             </div>
           </div>
         </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Hoş Geldiniz</h1>
-          <p className="text-muted-foreground">
-            Araştırma projelerinizi yönetin, anketler oluşturun ve verileri analiz edin
-          </p>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Projeler
-              </CardTitle>
-              <FolderKanban className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.projects}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Anketler
-              </CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.surveys}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Yanıtlar
-              </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.responses}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Analizler
-              </CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.analyses}</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <Card className="hover:border-primary cursor-pointer transition-colors" onClick={() => router.push('/projects')}>
-            <CardHeader>
-              <FolderKanban className="h-10 w-10 text-primary mb-2" />
-              <CardTitle>Projeler</CardTitle>
-              <CardDescription>
-                Araştırma projelerinizi görüntüleyin ve yönetin
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full">
-                <Plus className="mr-2 h-4 w-4" />
-                Projeler
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:border-primary cursor-pointer transition-colors" onClick={() => router.push('/surveys/new/design')}>
-            <CardHeader>
-              <FileText className="h-10 w-10 text-primary mb-2" />
-              <CardTitle>Yeni Anket</CardTitle>
-              <CardDescription>
-                Anket tasarlayın ve katılımcılardan veri toplayın
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full">
-                <Plus className="mr-2 h-4 w-4" />
-                Anket Oluştur
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:border-primary cursor-pointer transition-colors" onClick={() => router.push('/analyses')}>
-            <CardHeader>
-              <Brain className="h-10 w-10 text-primary mb-2" />
-              <CardTitle>AI Asistan</CardTitle>
-              <CardDescription>
-                AI destekli araştırma asistanı ile çalışın
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full">
-                <Brain className="mr-2 h-4 w-4" />
-                AI Asistan
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Son Aktiviteler</CardTitle>
-            <CardDescription>
-              Son yapılan işlemler ve güncellemeler
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8 text-muted-foreground">
-              Henüz aktivite bulunmuyor. Projelere başlamak için yukarıdaki kartları kullanın.
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      </main>
     </div>
-  );
+  )
+}
+
+function FeatureCard({
+  title,
+  description,
+  Icon,
+  status,
+  href,
+  active,
+}: {
+  title: string
+  description: string
+  Icon: React.ComponentType<{ className?: string }>
+  status?: string
+  href?: string
+  active?: boolean
+}) {
+  const content = (
+    <>
+      <Icon className="w-10 h-10 text-blue-600 mb-4" />
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
+      <p className="text-sm text-gray-600 mb-4">{description}</p>
+      {status && (
+        <span className="inline-block px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">{status}</span>
+      )}
+      {active && !status && (
+        <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs rounded-full">✓ Active</span>
+      )}
+    </>
+  )
+
+  if (active && href) {
+    return (
+      <Link href={href}>
+        <Card className="p-6 transition-all hover:shadow-lg cursor-pointer hover:scale-105">{content}</Card>
+      </Link>
+    )
+  }
+
+  return <Card className="p-6 opacity-75">{content}</Card>
 }
