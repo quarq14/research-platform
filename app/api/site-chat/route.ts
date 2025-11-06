@@ -1,4 +1,5 @@
 import { createServerClient } from "@/lib/supabase/server"
+import { chatCompletion, getUserAIPreferences, getUserAPIKey, AIConfig, ChatMessage } from "@/lib/ai-providers"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 30
@@ -14,6 +15,7 @@ export async function POST(req: Request) {
 
     const supabase = await createServerClient()
     let userName = "there"
+    let aiConfig: AIConfig = { provider: 'groq' } // Default to Groq (free)
 
     if (supabase) {
       const {
@@ -24,10 +26,20 @@ export async function POST(req: Request) {
         if (profile?.full_name) {
           userName = profile.full_name
         }
+
+        // Get user's AI preferences
+        const preferences = await getUserAIPreferences(user.id, supabase)
+        const apiKey = await getUserAPIKey(user.id, preferences.provider, supabase)
+
+        aiConfig = {
+          provider: preferences.provider,
+          model: preferences.model,
+          apiKey: apiKey || undefined,
+        }
       }
     }
 
-    const systemPrompt = `You are a helpful AI assistant for the Academic AI Platform. 
+    const systemPrompt = `You are a helpful AI assistant for the Academic AI Platform.
 Your role is to help users understand and navigate the platform's features.
 
 Platform features:
@@ -44,39 +56,14 @@ Platform features:
 Be friendly, concise, and helpful. Guide users to the right features based on their needs.
 The user's name is ${userName}.`
 
-    const groqApiKey = process.env.API_KEY_GROQ_API_KEY
-    if (!groqApiKey) {
-      return new Response(
-        JSON.stringify({
-          message: "I'm currently unavailable. Please check back later or contact support.",
-        }),
-        {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        },
-      )
-    }
+    // Prepare messages with system prompt
+    const chatMessages: ChatMessage[] = [
+      { role: 'system', content: systemPrompt },
+      ...messages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }))
+    ]
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${groqApiKey}`,
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        messages: [{ role: "system", content: systemPrompt }, ...messages],
-        temperature: 0.7,
-        max_tokens: 1000,
-      }),
-    })
-
-    if (!response.ok) {
-      throw new Error(`Groq API error: ${response.statusText}`)
-    }
-
-    const data = await response.json()
-    const assistantMessage = data.choices[0]?.message?.content || "I'm sorry, I couldn't generate a response."
+    // Use the unified AI provider system
+    const assistantMessage = await chatCompletion(aiConfig, chatMessages, 0.7, 1000)
 
     return new Response(JSON.stringify({ message: assistantMessage }), {
       status: 200,

@@ -1,13 +1,8 @@
 import { createServerClient } from "@/lib/supabase/server"
-import { streamText } from "ai"
-import { createGroq } from "@ai-sdk/groq"
+import { streamChatCompletion, getUserAIPreferences, getUserAPIKey, AIConfig, ChatMessage } from "@/lib/ai-providers"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 60
-
-const groq = createGroq({
-  apiKey: process.env.API_KEY_GROQ_API_KEY || "",
-})
 
 export async function POST(req: Request) {
   try {
@@ -31,6 +26,16 @@ export async function POST(req: Request) {
         status: 401,
         headers: { "Content-Type": "application/json" },
       })
+    }
+
+    // Get user's AI preferences
+    const preferences = await getUserAIPreferences(user.id, supabase)
+    const apiKey = await getUserAPIKey(user.id, preferences.provider, supabase)
+
+    const aiConfig: AIConfig = {
+      provider: preferences.provider,
+      model: preferences.model,
+      apiKey: apiKey || undefined,
     }
 
     // Get all chunks for the file
@@ -67,27 +72,45 @@ export async function POST(req: Request) {
 
     const context = scoredChunks.map((c) => `[Page ${c.page_number}] ${c.content}`).join("\n\n")
 
-    const result = streamText({
-      model: groq("llama-3.3-70b-versatile"),
-      system: `You are an academic research assistant. Answer questions about the uploaded PDF document. 
+    const systemPrompt = `You are an academic research assistant. Answer questions about the uploaded PDF document.
 Here is the relevant content from the PDF:
 
 ${context}
 
 Provide answers in English and cite page numbers when referencing specific information. Format citations as [Page X].
-Be precise and academic in your responses.`,
-      messages: [
-        ...(chatHistory || []),
-        {
-          role: "user",
-          content: message,
-        },
-      ],
-      temperature: 0.7,
-      maxOutputTokens: 2000,
+Be precise and academic in your responses.`
+
+    // Prepare messages
+    const messages: ChatMessage[] = [
+      { role: 'system', content: systemPrompt },
+      ...(chatHistory || []).map((m: any) => ({
+        role: m.role as 'user' | 'assistant',
+        content: m.content,
+      })),
+      { role: 'user', content: message },
+    ]
+
+    // Use streaming for real-time responses
+    const encoder = new TextEncoder()
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of streamChatCompletion(aiConfig, messages, 0.7, 2000)) {
+            controller.enqueue(encoder.encode(chunk))
+          }
+          controller.close()
+        } catch (error) {
+          controller.error(error)
+        }
+      },
     })
 
-    return result.toUIMessageStreamResponse()
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Transfer-Encoding': 'chunked',
+      },
+    })
   } catch (error) {
     console.error("[v0] Chat PDF API error:", error)
     return new Response(JSON.stringify({ error: "Error processing chat" }), {
