@@ -5,6 +5,11 @@ A comprehensive AI-powered academic writing and research platform built with Nex
 ## Features
 
 ### Core Functionality
+- **🤖 Site-Wide AI Chatbot**: Context-aware AI assistant that follows you across the platform
+  - Free Groq provider by default (no API key needed!)
+  - Bring your own API keys: OpenAI, Claude (Anthropic), Gemini, OpenRouter
+  - Automatic fallback to free provider if your key fails
+  - Tracks conversation context and provides intelligent help
 - **Multi-PDF Chat**: Upload and chat with multiple PDFs using RAG (Retrieval Augmented Generation)
 - **Scholarly Search**: Search academic papers from Semantic Scholar, OpenAlex, and Crossref
 - **Citation Management**: Generate citations in APA, MLA, Chicago, IEEE, and Harvard formats
@@ -20,10 +25,12 @@ A comprehensive AI-powered academic writing and research platform built with Nex
 - **Database**: Supabase (PostgreSQL with pgvector extension for RAG)
 - **Authentication**: Supabase Auth (Email/Password)
 - **LLM Providers**:
-  - Groq (default free provider)
-  - MiniMax M2 (for advanced agentic tasks with interleaved thinking)
-  - OpenRouter (user-supplied keys)
-  - OpenAI (user-supplied keys)
+  - **Groq** (default FREE provider - no API key needed!)
+  - **Claude** (Anthropic) - Bring your own API key
+  - **Gemini** (Google) - Bring your own API key
+  - **OpenAI** - Bring your own API key
+  - **OpenRouter** - Access multiple models with one key
+  - **MiniMax M2** (for advanced agentic tasks with interleaved thinking)
 - **Embeddings**: Simple hash-based (free), OpenAI, Nomic
 - **Payments**: Stripe, PayPal, iyzico
 - **PDF Processing**: pdf.js, pdf-parse, Tesseract.js for OCR

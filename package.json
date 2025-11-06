@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@ai-sdk/groq": "^1.0.4",
+    "@anthropic-ai/sdk": "^0.32.1",
     "@hookform/resolvers": "^3.10.0",
     "@langchain/community": "^0.3.22",
     "@langchain/core": "^0.3.28",

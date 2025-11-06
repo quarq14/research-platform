@@ -44,10 +44,19 @@ export function SiteChatbot() {
     setIsLoading(true)
 
     try {
-      const response = await fetch("/api/site-chat", {
+      // Get current page context
+      const context = {
+        page: window.location.pathname,
+        additionalInfo: document.title,
+      }
+
+      const response = await fetch("/api/chatbot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [...messages, userMessage] }),
+        body: JSON.stringify({
+          messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content })),
+          context,
+        }),
       })
 
       if (!response.ok) throw new Error("Failed to get response")
