@@ -1,75 +1,56 @@
 import { Button } from "@/components/ui/button"
-import { BookOpen, FileText, MessageSquare, Search } from "lucide-react"
+import { BookOpen } from "lucide-react"
 import Link from "next/link"
+import { LandingChatbot } from "@/components/landing-chatbot"
 
 export default function HomePage() {
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-br from-blue-50 to-indigo-100">
-      <header className="border-b bg-white/80 backdrop-blur-sm">
+    <div className="flex min-h-screen flex-col">
+      {/* Header */}
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
             <BookOpen className="h-6 w-6 text-blue-600" />
-            <span className="text-xl font-bold">Academic AI</span>
+            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Academic AI
+            </span>
           </div>
           <div className="flex gap-2">
             <Button variant="ghost" asChild>
-              <Link href="/login">Sign In</Link>
+              <Link href="/auth/login">Sign In</Link>
             </Button>
-            <Button asChild>
-              <Link href="/signup">Sign Up</Link>
+            <Button asChild className="bg-blue-600 hover:bg-blue-700">
+              <Link href="/auth/signup">Get Started</Link>
             </Button>
           </div>
         </div>
       </header>
 
+      {/* Main Chat Area */}
       <main className="flex-1">
-        <section className="container mx-auto px-4 py-20 text-center">
-          <h1 className="text-5xl font-bold tracking-tight text-gray-900 mb-6">
-            AI-Powered Academic Writing Assistant
-          </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Upload PDFs, search scholarly sources, and create academic papers with AI-powered writing assistance and
-            proper citations.
-          </p>
-          <div className="flex gap-4 justify-center">
-            <Button size="lg" asChild>
-              <Link href="/auth/signup">Start Free</Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/auth/login">Sign In</Link>
-            </Button>
-          </div>
-        </section>
-
-        <section className="container mx-auto px-4 py-16">
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <FileText className="h-10 w-10 text-blue-600 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">PDF Upload</h3>
-              <p className="text-gray-600">Upload academic papers and research documents</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <MessageSquare className="h-10 w-10 text-blue-600 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">RAG Chat</h3>
-              <p className="text-gray-600">Chat with your documents using AI</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <Search className="h-10 w-10 text-blue-600 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Academic Search</h3>
-              <p className="text-gray-600">Find sources with Semantic Scholar and OpenAlex</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <BookOpen className="h-10 w-10 text-blue-600 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Writing Assistant</h3>
-              <p className="text-gray-600">Write papers with AI-powered editor</p>
-            </div>
-          </div>
-        </section>
+        <LandingChatbot />
       </main>
 
-      <footer className="border-t bg-white/80 backdrop-blur-sm py-8">
-        <div className="container mx-auto px-4 text-center text-gray-600">
-          <p>&copy; 2025 Academic AI. All rights reserved.</p>
+      {/* Footer */}
+      <footer className="border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-6">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <BookOpen className="h-4 w-4" />
+              <span>&copy; 2025 Academic AI. All rights reserved.</span>
+            </div>
+            <div className="flex gap-6 text-sm">
+              <Link href="/auth/signup" className="text-muted-foreground hover:text-foreground transition-colors">
+                Features
+              </Link>
+              <Link href="/pricing" className="text-muted-foreground hover:text-foreground transition-colors">
+                Pricing
+              </Link>
+              <Link href="/auth/signup" className="text-muted-foreground hover:text-foreground transition-colors">
+                Documentation
+              </Link>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
