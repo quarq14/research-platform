@@ -1,176 +1,443 @@
+'use client'
+
 import type React from "react"
-import { redirect } from "next/navigation"
-import { createClient, isSupabaseConfigured } from "@/lib/supabase/server"
-import { Card } from "@/components/ui/card"
-import { FileText, Upload, Search, BookOpen, CheckCircle, MessageSquare } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import {
+  FileText, Upload, Search, BookOpen, MessageSquare, TrendingUp,
+  CheckCircle, Zap, BarChart3, Calendar, Clock, Award
+} from "lucide-react"
 import Link from "next/link"
-import { SetupRequired } from "@/components/setup-required"
+import { useLocale } from "@/contexts/LocaleContext"
+import { useAuth } from "@/contexts/AuthContext"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { getSupabase } from "@/lib/supabase"
 
-export const dynamic = "force-dynamic"
+export default function DashboardPage() {
+  const { t, locale } = useLocale()
+  const { user, loading } = useAuth()
+  const router = useRouter()
+  const [profile, setProfile] = useState<any>(null)
+  const [loadingProfile, setLoadingProfile] = useState(true)
 
-export default async function DashboardPage() {
-  if (!isSupabaseConfigured()) {
-    return <SetupRequired />
-  }
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth/login')
+    }
+  }, [user, loading, router])
 
-  const supabase = await createClient()
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!user) return
 
-  if (!supabase) {
-    return <SetupRequired />
-  }
+      const supabase = getSupabase()
+      if (!supabase) return
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser()
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single()
 
-  if (error || !user) {
-    redirect("/auth/login")
-  }
+        if (!error && data) {
+          setProfile(data)
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error)
+      } finally {
+        setLoadingProfile(false)
+      }
+    }
 
-  // Load profile
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+    loadProfile()
+  }, [user])
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome, {profile?.full_name || user.email}!</h2>
-          <p className="text-gray-600">Your academic writing and research platform</p>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="text-sm text-gray-600 mb-1">Documents</div>
-            <div className="text-3xl font-bold text-blue-600">{profile?.documents_used || 0}</div>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="text-sm text-gray-600 mb-1">Pages Uploaded</div>
-            <div className="text-3xl font-bold text-green-600">{profile?.pages_analyzed || 0}</div>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="text-sm text-gray-600 mb-1">Word Count</div>
-            <div className="text-3xl font-bold text-purple-600">{profile?.tokens_used || 0}</div>
-          </div>
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="text-sm text-gray-600 mb-1">Searches</div>
-            <div className="text-3xl font-bold text-orange-600">{profile?.searches_used || 0}</div>
-          </div>
-        </div>
-
-        {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <FeatureCard
-            title="Upload & Analyze PDFs"
-            description="Upload PDF files and chat with AI"
-            Icon={Upload}
-            href="/upload"
-            active
-          />
-          <FeatureCard
-            title="PDF Chat"
-            description="Chat with your PDF documents using AI"
-            Icon={MessageSquare}
-            href="/chat"
-            active
-          />
-          <FeatureCard
-            title="Academic Writing"
-            description="Write articles and documents with AI assistance"
-            Icon={FileText}
-            href="/write"
-            active
-          />
-          <FeatureCard
-            title="Literature Search"
-            description="Search and manage academic sources"
-            Icon={Search}
-            href="/sources"
-            active
-          />
-          <FeatureCard
-            title="Citation Manager"
-            description="Create citations in APA, MLA, Chicago formats"
-            Icon={BookOpen}
-            href="/citations"
-            active
-          />
-          <FeatureCard
-            title="Writing Tools"
-            description="Plagiarism check, AI detection, paraphrasing"
-            Icon={CheckCircle}
-            href="/tools"
-            active
-          />
-        </div>
-
-        {/* Profile Info */}
-        <div className="mt-6 bg-white rounded-xl shadow-sm p-6">
-          <h3 className="text-lg font-semibold mb-4">Profile Information</h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Email:</span>
-              <span className="font-medium">{user.email}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Plan:</span>
-              <span className="font-medium uppercase">{profile?.plan || "FREE"}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Language:</span>
-              <span className="font-medium uppercase">{profile?.locale || "EN"}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Member Since:</span>
-              <span className="font-medium">
-                {profile?.created_at ? new Date(profile.created_at).toLocaleDateString("en-US") : "-"}
-              </span>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-  )
-}
-
-function FeatureCard({
-  title,
-  description,
-  Icon,
-  status,
-  href,
-  active,
-}: {
-  title: string
-  description: string
-  Icon: React.ComponentType<{ className?: string }>
-  status?: string
-  href?: string
-  active?: boolean
-}) {
-  const content = (
-    <>
-      <Icon className="w-10 h-10 text-blue-600 mb-4" />
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-      <p className="text-sm text-gray-600 mb-4">{description}</p>
-      {status && (
-        <span className="inline-block px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">{status}</span>
-      )}
-      {active && !status && (
-        <span className="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs rounded-full">✓ Active</span>
-      )}
-    </>
-  )
-
-  if (active && href) {
+  if (loading || loadingProfile) {
     return (
-      <Link href={href}>
-        <Card className="p-6 transition-all hover:shadow-lg cursor-pointer hover:scale-105">{content}</Card>
-      </Link>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-purple-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="h-12 w-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-600 dark:text-gray-400">{t('common.loading')}</p>
+        </div>
+      </div>
     )
   }
 
-  return <Card className="p-6 opacity-75">{content}</Card>
+  if (!user) {
+    return null
+  }
+
+  const stats = [
+    {
+      label: t('dashboard.tokensUsed'),
+      value: profile?.tokens_used || 0,
+      max: profile?.plan === 'pro' ? '1M' : '50K',
+      icon: Zap,
+      color: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20',
+      trend: '+12%'
+    },
+    {
+      label: t('dashboard.pagesAnalyzed'),
+      value: profile?.pages_analyzed || 0,
+      max: profile?.plan === 'pro' ? 500 : 20,
+      icon: FileText,
+      color: 'text-blue-600 bg-blue-100 dark:bg-blue-900/20',
+      trend: '+8%'
+    },
+    {
+      label: t('dashboard.searchesMade'),
+      value: profile?.searches_used || 0,
+      max: profile?.plan === 'pro' ? 500 : 10,
+      icon: Search,
+      color: 'text-purple-600 bg-purple-100 dark:bg-purple-900/20',
+      trend: '+15%'
+    },
+    {
+      label: locale === 'en' ? 'Documents' : 'Belgeler',
+      value: profile?.documents_used || 0,
+      max: locale === 'en' ? 'Unlimited' : 'Sınırsız',
+      icon: BookOpen,
+      color: 'text-green-600 bg-green-100 dark:bg-green-900/20',
+      trend: '+5%'
+    }
+  ]
+
+  const quickActions = [
+    {
+      title: t('dashboard.uploadPDF'),
+      description: locale === 'en' ? 'Upload and analyze PDFs' : 'PDF yükle ve analiz et',
+      icon: Upload,
+      href: '/upload',
+      color: 'from-blue-500 to-cyan-500'
+    },
+    {
+      title: t('nav.chat'),
+      description: locale === 'en' ? 'Chat with your documents' : 'Belgelerinizle sohbet edin',
+      icon: MessageSquare,
+      href: '/chat',
+      color: 'from-purple-500 to-pink-500'
+    },
+    {
+      title: t('nav.write'),
+      description: locale === 'en' ? 'Write with AI assistance' : 'Yapay zeka ile yazın',
+      icon: FileText,
+      href: '/write',
+      color: 'from-pink-500 to-rose-500'
+    },
+    {
+      title: t('dashboard.searchSources'),
+      description: locale === 'en' ? 'Find academic sources' : 'Akademik kaynaklar bulun',
+      icon: Search,
+      href: '/sources',
+      color: 'from-indigo-500 to-purple-500'
+    }
+  ]
+
+  const recentActivity = [
+    {
+      action: locale === 'en' ? 'Uploaded PDF' : 'PDF yüklendi',
+      file: locale === 'en' ? 'Research_Paper.pdf' : 'Arastirma_Makalesi.pdf',
+      time: locale === 'en' ? '2 hours ago' : '2 saat önce',
+      icon: Upload
+    },
+    {
+      action: locale === 'en' ? 'Chat Session' : 'Sohbet Oturumu',
+      file: locale === 'en' ? 'Literature Review' : 'Literatür İncelemesi',
+      time: locale === 'en' ? '5 hours ago' : '5 saat önce',
+      icon: MessageSquare
+    },
+    {
+      action: locale === 'en' ? 'Academic Search' : 'Akademik Arama',
+      file: locale === 'en' ? 'Machine Learning Papers' : 'Makine Öğrenmesi Makaleleri',
+      time: locale === 'en' ? '1 day ago' : '1 gün önce',
+      icon: Search
+    }
+  ]
+
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-900 dark:to-purple-950">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                {t('dashboard.welcome')}, {profile?.full_name || user.email?.split('@')[0]}!
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                {locale === 'en'
+                  ? 'Here\'s what\'s happening with your research today'
+                  : 'İşte bugün araştırmanızda neler oluyor'}
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Button variant="outline" asChild>
+                <Link href="/settings">
+                  {t('nav.settings')}
+                </Link>
+              </Button>
+              <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                <Link href="/upload">
+                  <Upload className="mr-2 h-4 w-4" />
+                  {t('dashboard.uploadPDF')}
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {stats.map((stat, idx) => (
+            <Card key={idx} className="hover:shadow-lg transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{stat.label}</p>
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                        {stat.value.toLocaleString()}
+                      </p>
+                      <span className="text-sm text-gray-500">/ {stat.max}</span>
+                    </div>
+                    <div className="flex items-center gap-1 mt-2">
+                      <TrendingUp className="h-3 w-3 text-green-600" />
+                      <span className="text-xs text-green-600">{stat.trend}</span>
+                    </div>
+                  </div>
+                  <div className={`p-3 rounded-xl ${stat.color}`}>
+                    <stat.icon className="h-6 w-6" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div className="grid lg:grid-cols-3 gap-6 mb-8">
+          {/* Quick Actions */}
+          <div className="lg:col-span-2">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                {t('dashboard.quickActions')}
+              </h2>
+            </div>
+            <div className="grid md:grid-cols-2 gap-4">
+              {quickActions.map((action, idx) => (
+                <Link key={idx} href={action.href}>
+                  <Card className="hover:shadow-xl transition-all hover:-translate-y-1 cursor-pointer group">
+                    <CardContent className="p-6">
+                      <div className={`bg-gradient-to-br ${action.color} p-3 rounded-xl w-fit mb-4 group-hover:scale-110 transition-transform shadow-lg`}>
+                        <action.icon className="h-6 w-6 text-white" />
+                      </div>
+                      <h3 className="font-semibold text-lg mb-1 text-gray-900 dark:text-gray-100">
+                        {action.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        {action.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Current Plan */}
+          <div>
+            <div className="mb-4">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                {t('dashboard.currentPlan')}
+              </h2>
+            </div>
+            <Card className="bg-gradient-to-br from-blue-600 to-purple-600 text-white border-none shadow-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-white/20 rounded-lg">
+                    <Award className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-sm opacity-90">
+                      {locale === 'en' ? 'Current Plan' : 'Mevcut Plan'}
+                    </p>
+                    <p className="text-2xl font-bold uppercase">
+                      {profile?.plan || 'FREE'}
+                    </p>
+                  </div>
+                </div>
+
+                {profile?.plan === 'free' && (
+                  <>
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle className="h-4 w-4" />
+                        {locale === 'en' ? '50K tokens/month' : '50K token/ay'}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle className="h-4 w-4" />
+                        {locale === 'en' ? 'Basic features' : 'Temel özellikler'}
+                      </div>
+                    </div>
+                    <Button asChild variant="secondary" className="w-full">
+                      <Link href="/pricing">
+                        {t('dashboard.upgradePlan')}
+                      </Link>
+                    </Button>
+                  </>
+                )}
+
+                {profile?.plan === 'pro' && (
+                  <>
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle className="h-4 w-4" />
+                        {locale === 'en' ? '1M tokens/month' : '1M token/ay'}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle className="h-4 w-4" />
+                        {locale === 'en' ? 'All AI providers' : 'Tüm AI sağlayıcıları'}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <CheckCircle className="h-4 w-4" />
+                        {locale === 'en' ? 'Priority support' : 'Öncelikli destek'}
+                      </div>
+                    </div>
+                    <div className="text-sm opacity-90">
+                      <Calendar className="inline h-4 w-4 mr-1" />
+                      {locale === 'en' ? 'Renews ' : 'Yenileme '}
+                      {profile?.subscription_end
+                        ? new Date(profile.subscription_end).toLocaleDateString(locale)
+                        : '-'}
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Recent Activity */}
+            <div className="mt-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                {locale === 'en' ? 'Recent Activity' : 'Son Aktivite'}
+              </h2>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="space-y-4">
+                    {recentActivity.map((activity, idx) => (
+                      <div key={idx} className="flex items-start gap-3 pb-4 last:pb-0 border-b last:border-b-0">
+                        <div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+                          <activity.icon className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                            {activity.action}
+                          </p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
+                            {activity.file}
+                          </p>
+                          <div className="flex items-center gap-1 mt-1">
+                            <Clock className="h-3 w-3 text-gray-400" />
+                            <span className="text-xs text-gray-500">{activity.time}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+
+        {/* Usage Chart Section */}
+        <Card className="mb-8">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                  {t('dashboard.usageStats')}
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {locale === 'en' ? 'Your usage this month' : 'Bu ayki kullanımınız'}
+                </p>
+              </div>
+              <BarChart3 className="h-8 w-8 text-blue-600" />
+            </div>
+
+            <div className="space-y-4">
+              {/* Token Usage Bar */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {locale === 'en' ? 'Tokens' : 'Tokenler'}
+                  </span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {profile?.tokens_used || 0} / {profile?.plan === 'pro' ? '1,000,000' : '50,000'}
+                  </span>
+                </div>
+                <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-blue-600 to-purple-600 transition-all"
+                    style={{
+                      width: `${Math.min(
+                        ((profile?.tokens_used || 0) / (profile?.plan === 'pro' ? 1000000 : 50000)) * 100,
+                        100
+                      )}%`
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Pages Usage Bar */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {locale === 'en' ? 'Pages' : 'Sayfalar'}
+                  </span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {profile?.pages_analyzed || 0} / {profile?.plan === 'pro' ? '500' : '20'}
+                  </span>
+                </div>
+                <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-green-600 to-teal-600 transition-all"
+                    style={{
+                      width: `${Math.min(
+                        ((profile?.pages_analyzed || 0) / (profile?.plan === 'pro' ? 500 : 20)) * 100,
+                        100
+                      )}%`
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Searches Usage Bar */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {locale === 'en' ? 'Searches' : 'Aramalar'}
+                  </span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {profile?.searches_used || 0} / {profile?.plan === 'pro' ? '500' : '10'}
+                  </span>
+                </div>
+                <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-purple-600 to-pink-600 transition-all"
+                    style={{
+                      width: `${Math.min(
+                        ((profile?.searches_used || 0) / (profile?.plan === 'pro' ? 500 : 10)) * 100,
+                        100
+                      )}%`
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </main>
+  )
 }
