@@ -1,0 +1,358 @@
+{
+  "common": {
+    "appName": "Academic AI Research Platform",
+    "tagline": "AI-Powered Research & Writing Assistant",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "update": "Update",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "import": "Import",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "confirm": "Confirm",
+    "language": "Language",
+    "logout": "Logout"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "upload": "Upload",
+    "chat": "Chat",
+    "write": "Write",
+    "sources": "Sources",
+    "citations": "Citations",
+    "tools": "Tools",
+    "settings": "Settings",
+    "pricing": "Pricing",
+    "admin": "Admin"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot Password?",
+    "resetPassword": "Reset Password",
+    "createAccount": "Create Account",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?",
+    "verifyEmail": "Verify Email",
+    "checkEmail": "Check your email for verification link",
+    "passwordMinLength": "Password must be at least 8 characters",
+    "passwordsMustMatch": "Passwords must match",
+    "invalidEmail": "Invalid email address",
+    "loginSuccess": "Logged in successfully",
+    "signupSuccess": "Account created successfully",
+    "logoutSuccess": "Logged out successfully"
+  },
+  "home": {
+    "hero": {
+      "title": "AI-Powered Academic Research & Writing",
+      "subtitle": "Upload PDFs, chat with documents, search scholarly sources, and create academic papers with AI assistance. Choose from multiple AI providers.",
+      "cta": "Get Started Free",
+      "demo": "Try Demo",
+      "badge": "Powered by Multiple AI Providers"
+    },
+    "features": {
+      "title": "Powerful Research Tools",
+      "pdfAnalysis": {
+        "title": "PDF Upload & Analysis",
+        "description": "Upload academic papers and analyze them with AI"
+      },
+      "chatPDF": {
+        "title": "Chat with PDFs",
+        "description": "Ask questions about your documents using advanced AI"
+      },
+      "academicSearch": {
+        "title": "Academic Search",
+        "description": "Find scholarly sources from multiple databases"
+      },
+      "writingAssistant": {
+        "title": "Writing Assistant",
+        "description": "Write papers with AI-powered editor and citations"
+      },
+      "citationManager": {
+        "title": "Citation Manager",
+        "description": "Manage references in APA, MLA, Chicago, and more"
+      },
+      "plagiarismCheck": {
+        "title": "Plagiarism Checker",
+        "description": "Ensure originality with advanced plagiarism detection"
+      }
+    },
+    "aiProviders": {
+      "title": "Choose Your AI Provider",
+      "subtitle": "Start with our free Groq API, or use your own keys for OpenAI, Claude, Gemini, MiniMax, or OpenRouter",
+      "free": "Free",
+      "openai": "GPT-4",
+      "claude": "Anthropic",
+      "gemini": "Google",
+      "openrouter": "Multi-Model",
+      "minimax": "M2 Agent"
+    },
+    "benefits": {
+      "title": "Why Choose Our Platform?",
+      "academic": {
+        "title": "Academic Integrity",
+        "description": "Built-in plagiarism detection and proper citation tools"
+      },
+      "multiLingual": {
+        "title": "Multilingual Support",
+        "description": "Full support for English and Turkish with auto-detection"
+      },
+      "privacy": {
+        "title": "Secure & Private",
+        "description": "Your data is encrypted and never shared"
+      },
+      "flexible": {
+        "title": "Flexible Pricing",
+        "description": "Free tier with upgrade options for heavy users"
+      }
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back",
+    "recentProjects": "Recent Projects",
+    "recentDocuments": "Recent Documents",
+    "usageStats": "Usage Statistics",
+    "quickActions": "Quick Actions",
+    "uploadPDF": "Upload PDF",
+    "newDocument": "New Document",
+    "searchSources": "Search Sources",
+    "tokensUsed": "Tokens Used",
+    "pagesAnalyzed": "Pages Analyzed",
+    "searchesMade": "Searches Made",
+    "currentPlan": "Current Plan",
+    "upgradePlan": "Upgrade Plan"
+  },
+  "upload": {
+    "title": "Upload Documents",
+    "dragDrop": "Drag and drop PDFs here",
+    "or": "or",
+    "browse": "Browse Files",
+    "processing": "Processing...",
+    "success": "File uploaded successfully",
+    "error": "Failed to upload file",
+    "maxSize": "Maximum file size: 50MB",
+    "supportedFormats": "Supported formats: PDF",
+    "uploadedFiles": "Uploaded Files",
+    "fileName": "File Name",
+    "pages": "Pages",
+    "size": "Size",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "chat": {
+    "title": "Chat with Documents",
+    "selectDocument": "Select a document to chat",
+    "typeMessage": "Type your message...",
+    "send": "Send",
+    "thinking": "Thinking...",
+    "citationsFound": "Citations found",
+    "sources": "Sources",
+    "noCitations": "No citations",
+    "clearChat": "Clear Chat",
+    "newChat": "New Chat",
+    "chatHistory": "Chat History"
+  },
+  "write": {
+    "title": "Writing Workspace",
+    "newDocument": "New Document",
+    "documentTitle": "Document Title",
+    "documentType": "Document Type",
+    "types": {
+      "article": "Academic Article",
+      "review": "Literature Review",
+      "assignment": "Assignment",
+      "blog": "Blog Post",
+      "book": "Book Chapter",
+      "thesis": "Thesis"
+    },
+    "targetWords": "Target Words",
+    "citationStyle": "Citation Style",
+    "startWriting": "Start Writing",
+    "aiAssist": "AI Assist",
+    "paraphrase": "Paraphrase",
+    "expand": "Expand",
+    "summarize": "Summarize",
+    "addCitation": "Add Citation",
+    "checkPlagiarism": "Check Plagiarism",
+    "checkAI": "Check AI Content",
+    "export": "Export",
+    "saveSuccess": "Document saved successfully"
+  },
+  "sources": {
+    "title": "Academic Sources",
+    "searchPlaceholder": "Search for papers, authors, topics...",
+    "advancedFilters": "Advanced Filters",
+    "year": "Year",
+    "yearFrom": "From",
+    "yearTo": "To",
+    "sourceType": "Source Type",
+    "venue": "Venue",
+    "citationCount": "Citation Count",
+    "openAccess": "Open Access Only",
+    "results": "Results",
+    "noResults": "No results found",
+    "addToDocument": "Add to Document",
+    "viewPDF": "View PDF",
+    "copyCitation": "Copy Citation"
+  },
+  "citations": {
+    "title": "Citation Manager",
+    "myReferences": "My References",
+    "addReference": "Add Reference",
+    "style": "Citation Style",
+    "inText": "In-text Citation",
+    "reference": "Reference",
+    "copyAll": "Copy All",
+    "export": "Export Bibliography",
+    "importBib": "Import Bibliography"
+  },
+  "tools": {
+    "title": "Research Tools",
+    "plagiarismChecker": "Plagiarism Checker",
+    "aiDetector": "AI Content Detector",
+    "paraphrasingTool": "Paraphrasing Tool",
+    "textAnalyzer": "Text Analyzer",
+    "runCheck": "Run Check",
+    "checking": "Checking...",
+    "results": "Results",
+    "originalityScore": "Originality Score",
+    "aiProbability": "AI Probability",
+    "matches": "Matches Found",
+    "noIssues": "No issues detected",
+    "disclaimer": "Disclaimer: AI detectors have limitations and may produce false positives."
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "aiSettings": "AI Settings",
+    "apiKeys": "API Keys",
+    "billing": "Billing & Subscription",
+    "preferences": "Preferences",
+    "name": "Name",
+    "email": "Email",
+    "language": "Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "aiProvider": "AI Provider",
+    "selectProvider": "Select Provider",
+    "model": "Model",
+    "selectModel": "Select Model",
+    "addApiKey": "Add API Key",
+    "provider": "Provider",
+    "apiKey": "API Key",
+    "masked": "Key is masked for security",
+    "saveSuccess": "Settings saved successfully",
+    "apiKeySaved": "API key saved successfully"
+  },
+  "billing": {
+    "title": "Billing & Subscription",
+    "currentPlan": "Current Plan",
+    "upgrade": "Upgrade",
+    "downgrade": "Downgrade",
+    "cancel": "Cancel Subscription",
+    "renews": "Renews on",
+    "expires": "Expires on",
+    "paymentMethod": "Payment Method",
+    "updatePayment": "Update Payment Method",
+    "invoiceHistory": "Invoice History",
+    "date": "Date",
+    "amount": "Amount",
+    "status": "Status",
+    "download": "Download",
+    "usage": "Usage This Month"
+  },
+  "pricing": {
+    "title": "Pricing Plans",
+    "subtitle": "Choose the plan that fits your needs",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "save": "Save 17%",
+    "free": {
+      "name": "Free",
+      "price": "$0",
+      "description": "Perfect for trying out the platform",
+      "features": [
+        "50,000 tokens per month",
+        "Upload up to 20 pages",
+        "10 searches per month",
+        "Basic AI chat",
+        "Export to DOCX/PDF"
+      ]
+    },
+    "pro": {
+      "name": "Pro",
+      "price": "$19.99",
+      "description": "For serious researchers and writers",
+      "features": [
+        "1,000,000 tokens per month",
+        "Upload up to 500 pages",
+        "500 searches per month",
+        "All AI providers",
+        "Plagiarism checking (50 checks)",
+        "AI content detection",
+        "Priority support",
+        "Advanced export options"
+      ]
+    },
+    "team": {
+      "name": "Team",
+      "price": "$49.99",
+      "description": "For research teams and organizations",
+      "features": [
+        "5,000,000 tokens per month",
+        "Upload up to 2,000 pages",
+        "2,000 searches per month",
+        "All Pro features",
+        "Team collaboration",
+        "Shared projects",
+        "Admin dashboard",
+        "API access",
+        "Dedicated support"
+      ]
+    },
+    "selectPlan": "Select Plan",
+    "currentPlan": "Current Plan"
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "users": "Users",
+    "totalUsers": "Total Users",
+    "activeUsers": "Active Users",
+    "newUsers": "New Users (30d)",
+    "usage": "Platform Usage",
+    "revenue": "Revenue",
+    "recentUsers": "Recent Users",
+    "userManagement": "User Management",
+    "planManagement": "Plan Management",
+    "systemStats": "System Statistics"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Network error. Please check your connection.",
+    "unauthorized": "Unauthorized. Please sign in.",
+    "notFound": "Not found.",
+    "validation": "Please check your input.",
+    "fileSize": "File size exceeds limit.",
+    "fileType": "Unsupported file type.",
+    "rateLimited": "Too many requests. Please try again later.",
+    "payment": "Payment failed. Please try again or update your payment method."
+  }
+}
