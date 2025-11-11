@@ -3,7 +3,7 @@
  * Supports multiple AI providers: Groq (free), OpenRouter, Claude, OpenAI, Gemini
  */
 
-export type AIProvider = 'groq' | 'openrouter' | 'claude' | 'openai' | 'gemini'
+export type AIProvider = 'groq' | 'openrouter' | 'claude' | 'openai' | 'gemini' | 'kimi'
 
 export interface AIConfig {
   provider: AIProvider
@@ -30,6 +30,7 @@ export const DEFAULT_MODELS: Record<AIProvider, string> = {
   claude: 'claude-3-5-sonnet-20241022',
   openai: 'gpt-4o',
   gemini: 'gemini-2.0-flash-exp',
+  kimi: 'moonshot-v1-8k',
 }
 
 /**
@@ -41,6 +42,7 @@ export const PROVIDER_NAMES: Record<AIProvider, string> = {
   claude: 'Claude (Anthropic)',
   openai: 'OpenAI',
   gemini: 'Google Gemini',
+  kimi: 'Kimi (Moonshot AI)',
 }
 
 /**
@@ -52,6 +54,7 @@ const PROVIDER_ENDPOINTS: Record<AIProvider, string> = {
   claude: 'https://api.anthropic.com/v1/messages',
   openai: 'https://api.openai.com/v1/chat/completions',
   gemini: 'https://generativelanguage.googleapis.com/v1beta/models',
+  kimi: 'https://api.moonshot.cn/v1/chat/completions',
 }
 
 /**
@@ -67,6 +70,7 @@ function getApiKey(provider: AIProvider, userKey?: string): string | null {
     claude: process.env.ANTHROPIC_API_KEY,
     openai: process.env.OPENAI_API_KEY,
     gemini: process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY,
+    kimi: process.env.KIMI_API_KEY || process.env.MOONSHOT_API_KEY,
   }
 
   return envKeys[provider] || null
@@ -237,6 +241,7 @@ export async function chatCompletion(
     case 'groq':
     case 'openrouter':
     case 'openai':
+    case 'kimi':
       data = await chatOpenAICompatible(
         PROVIDER_ENDPOINTS[config.provider],
         apiKey,
@@ -281,8 +286,8 @@ export async function* streamChatCompletion(
 
   const model = config.model || DEFAULT_MODELS[config.provider]
 
-  // For OpenAI-compatible APIs (Groq, OpenRouter, OpenAI)
-  if (config.provider === 'groq' || config.provider === 'openrouter' || config.provider === 'openai') {
+  // For OpenAI-compatible APIs (Groq, OpenRouter, OpenAI, Kimi)
+  if (config.provider === 'groq' || config.provider === 'openrouter' || config.provider === 'openai' || config.provider === 'kimi') {
     const response = await fetch(PROVIDER_ENDPOINTS[config.provider], {
       method: 'POST',
       headers: {

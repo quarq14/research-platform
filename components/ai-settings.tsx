@@ -30,6 +30,7 @@ export function AISettings() {
     claude: '',
     openai: '',
     gemini: '',
+    kimi: '',
   })
   const [showKeys, setShowKeys] = useState<Record<AIProvider, boolean>>({
     groq: false,
@@ -37,6 +38,7 @@ export function AISettings() {
     claude: false,
     openai: false,
     gemini: false,
+    kimi: false,
   })
   const [savedKeys, setSavedKeys] = useState<Set<AIProvider>>(new Set())
   const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_MODELS.groq)
@@ -201,6 +203,12 @@ export function AISettings() {
       icon: Zap,
     },
     {
+      value: 'kimi',
+      label: 'Kimi (Free)',
+      description: 'Moonshot AI with free tier',
+      icon: Sparkles,
+    },
+    {
       value: 'openrouter',
       label: 'OpenRouter',
       description: 'Access to multiple models',
@@ -232,6 +240,11 @@ export function AISettings() {
       { value: 'llama-3.1-70b-versatile', label: 'Llama 3.1 70B' },
       { value: 'llama-3.1-8b-instant', label: 'Llama 3.1 8B (Fast)' },
       { value: 'mixtral-8x7b-32768', label: 'Mixtral 8x7B' },
+    ],
+    kimi: [
+      { value: 'moonshot-v1-8k', label: 'Kimi K2 8K' },
+      { value: 'moonshot-v1-32k', label: 'Kimi K2 32K' },
+      { value: 'moonshot-v1-128k', label: 'Kimi K2 128K' },
     ],
     openrouter: [
       { value: 'meta-llama/llama-3.3-70b-instruct', label: 'Llama 3.3 70B' },
@@ -347,6 +360,9 @@ export function AISettings() {
                   {provider === 'groq' && (
                     <p className="text-xs text-muted-foreground">Free tier available - built-in API key included</p>
                   )}
+                  {provider === 'kimi' && (
+                    <p className="text-xs text-muted-foreground">Free tier available - optional API key</p>
+                  )}
                 </div>
                 {savedKeys.has(provider) && (
                   <Badge variant="default" className="gap-1">
@@ -363,7 +379,7 @@ export function AISettings() {
                     type={showKeys[provider] ? 'text' : 'password'}
                     value={apiKeys[provider]}
                     onChange={(e) => setApiKeys({ ...apiKeys, [provider]: e.target.value })}
-                    placeholder={provider === 'groq' ? 'Optional - free API included' : 'Enter your API key'}
+                    placeholder={provider === 'groq' || provider === 'kimi' ? 'Optional - free API included' : 'Enter your API key'}
                     className="pr-10"
                   />
                   <button
@@ -428,6 +444,20 @@ export function AISettings() {
                   </a>
                 </p>
               )}
+              {provider === 'kimi' && (
+                <p className="text-xs text-muted-foreground">
+                  Get your key at{' '}
+                  <a
+                    href="https://platform.moonshot.cn/console/api-keys"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline"
+                  >
+                    platform.moonshot.cn
+                  </a>
+                  {' '}- Free tier available with generous limits
+                </p>
+              )}
             </div>
           ))}
         </CardContent>
@@ -449,6 +479,9 @@ export function AISettings() {
           <p>
             • <strong>Groq (Free):</strong> Our embedded free API key allows you to use AI features immediately without any
             setup
+          </p>
+          <p>
+            • <strong>Kimi K2 (Free):</strong> Moonshot AI offers generous free tier with support for long context (up to 128K tokens)
           </p>
           <p>
             • <strong>Your API Keys:</strong> Add your own keys for more providers and higher rate limits
