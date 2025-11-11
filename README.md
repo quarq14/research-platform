@@ -56,6 +56,12 @@ A comprehensive, production-ready AI-powered academic writing and research platf
 - Secure authentication (email/password)
 - Data isolation per user
 
+### 🔌 MCP Integration
+- **Model Context Protocol (MCP)** support for AI assistants
+- Direct database access for Claude Code and other MCP-compatible tools
+- Secure connection with service role authentication
+- Real-time data queries and schema exploration
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -106,7 +112,14 @@ Create storage bucket:
 - Create a bucket named `pdfs`
 - Set to private (authenticated users only)
 
-5. **Run the development server**
+5. **Configure MCP (Optional)**
+
+For AI assistant integration (Claude Code, etc.):
+- MCP configuration is pre-configured in `.claude/mcp.json`
+- Update your `.env.local` with Supabase credentials
+- See `MCP_INTEGRATION.md` for detailed setup
+
+6. **Run the development server**
 ```bash
 npm run dev
 ```
@@ -114,6 +127,12 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000) to see the application.
 
 ## 📖 Documentation
+
+### Setup Guides
+- `SETUP.md` - General setup instructions
+- `SUPABASE_SETUP.md` - Supabase configuration guide
+- `MCP_INTEGRATION.md` - Model Context Protocol integration
+- `DATABASE_SETUP.md` - Database schema and migrations
 
 ### Core Services
 

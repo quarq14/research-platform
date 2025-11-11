@@ -407,12 +407,24 @@ After completing setup:
 
 1. ✅ **Configure AI Providers**: Add API keys for Groq, OpenAI, Claude, etc.
 2. ✅ **Set Up Payment Providers**: Configure Stripe, PayPal, or İyzico (optional)
-3. ✅ **Test Authentication**: Sign up a test user
-4. ✅ **Upload a PDF**: Test file upload and processing
-5. ✅ **Try Chat**: Test the AI chat functionality
-6. ✅ **Create a Document**: Test the writing assistant
+3. ✅ **Configure MCP Integration**: Enable AI assistant database access (see `MCP_INTEGRATION.md`)
+4. ✅ **Test Authentication**: Sign up a test user
+5. ✅ **Upload a PDF**: Test file upload and processing
+6. ✅ **Try Chat**: Test the AI chat functionality
+7. ✅ **Create a Document**: Test the writing assistant
 
 ---
+
+## MCP Integration (Optional)
+
+For AI assistant integration with direct database access:
+
+1. **Automatic Configuration**: MCP is pre-configured in `.claude/mcp.json`
+2. **Project Reference**: Set to `fecijxvszvftsdpjdbjk`
+3. **Authentication**: Uses your `SUPABASE_SERVICE_ROLE_KEY`
+4. **Usage**: Compatible with Claude Code and other MCP-enabled tools
+
+See `MCP_INTEGRATION.md` for detailed setup and usage instructions.
 
 ## Additional Resources
 
@@ -421,6 +433,7 @@ After completing setup:
 - [Row Level Security](https://supabase.com/docs/guides/auth/row-level-security)
 - [Storage Guide](https://supabase.com/docs/guides/storage)
 - [Realtime Subscriptions](https://supabase.com/docs/guides/realtime)
+- [MCP Integration](https://supabase.com/docs/guides/ai/mcp)
 
 ---
 

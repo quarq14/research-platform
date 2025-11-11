@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "supabase": {
+      "url": "https://mcp.supabase.com/mcp?project_ref=fecijxvszvftsdpjdbjk",
+      "apiKey": "${SUPABASE_SERVICE_ROLE_KEY}",
+      "description": "Supabase MCP server for academic research platform database access",
+      "projectRef": "fecijxvszvftsdpjdbjk"
+    }
+  }
+}
