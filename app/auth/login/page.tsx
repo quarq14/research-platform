@@ -19,7 +19,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const { t, locale, setLocale } = useLocale()
+  const { t } = useLocale()
 
   if (!isSupabaseConfigured()) {
     return <SetupRequired />
@@ -67,23 +67,11 @@ export default function LoginPage() {
             </h1>
           </Link>
 
-          {/* Language Toggle */}
-          <div className="flex justify-center">
-            <button
-              onClick={() => setLocale(locale === 'en' ? 'tr' : 'en')}
-              className="text-sm text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition"
-            >
-              {locale === 'en' ? '🇹🇷 Türkçe' : '🇬🇧 English'}
-            </button>
-          </div>
-
           <Card className="shadow-xl border-2 border-gray-100 dark:border-gray-800">
             <CardHeader className="text-center pb-4">
               <CardTitle className="text-2xl font-bold">{t('auth.signIn')}</CardTitle>
               <CardDescription className="text-base">
-                {locale === 'en'
-                  ? 'Sign in to your account to continue'
-                  : 'Devam etmek için hesabınıza giriş yapın'}
+                Sign in to your account to continue
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -98,7 +86,7 @@ export default function LoginPage() {
                     <Input
                       id="email"
                       type="email"
-                      placeholder={locale === 'en' ? 'you@example.com' : 'ornek@eposta.com'}
+                      placeholder="you@example.com"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -121,7 +109,7 @@ export default function LoginPage() {
                       onChange={(e) => setPassword(e.target.value)}
                       className="h-11"
                       autoComplete="current-password"
-                      placeholder={locale === 'en' ? 'Enter your password' : 'Şifrenizi girin'}
+                      placeholder="Enter your password"
                     />
                   </div>
 
@@ -151,7 +139,7 @@ export default function LoginPage() {
                     {isLoading ? (
                       <span className="flex items-center gap-2">
                         <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        {locale === 'en' ? 'Signing in...' : 'Giriş yapılıyor...'}
+                        Signing in...
                       </span>
                     ) : (
                       <span className="flex items-center gap-2">
@@ -170,7 +158,7 @@ export default function LoginPage() {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="px-2 bg-white dark:bg-gray-800 text-gray-500">
-                    {locale === 'en' ? 'or' : 'veya'}
+                    or
                   </span>
                 </div>
               </div>
@@ -196,7 +184,7 @@ export default function LoginPage() {
               href="/"
               className="text-sm text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition"
             >
-              ← {locale === 'en' ? 'Back to Home' : 'Ana Sayfaya Dön'}
+              ← Back to Home
             </Link>
           </div>
         </div>
