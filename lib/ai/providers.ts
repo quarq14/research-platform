@@ -568,6 +568,96 @@ export class MiniMaxProvider implements AIProvider {
   }
 }
 
+// Kimi Provider (Moonshot AI)
+export class KimiProvider implements AIProvider {
+  name = 'kimi'
+  private apiKey: string | null
+
+  constructor(apiKey?: string) {
+    this.apiKey = apiKey || process.env.KIMI_API_KEY || process.env.MOONSHOT_API_KEY || null
+  }
+
+  isConfigured(): boolean {
+    return this.apiKey !== null
+  }
+
+  async generateCompletion(params: AICompletionParams): Promise<string> {
+    if (!this.apiKey) throw new Error('Kimi API key not configured')
+
+    const response = await fetch('https://api.moonshot.cn/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: params.model || 'moonshot-v1-8k',
+        messages: params.messages,
+        temperature: params.temperature || 0.7,
+        max_tokens: params.maxTokens || 2000,
+        stream: false,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`Kimi API error: ${response.statusText}`)
+    }
+
+    const data = await response.json()
+    return data.choices[0].message.content
+  }
+
+  async *streamCompletion(params: AICompletionParams): AsyncGenerator<string> {
+    if (!this.apiKey) throw new Error('Kimi API key not configured')
+
+    const response = await fetch('https://api.moonshot.cn/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: params.model || 'moonshot-v1-8k',
+        messages: params.messages,
+        temperature: params.temperature || 0.7,
+        max_tokens: params.maxTokens || 2000,
+        stream: true,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`Kimi API error: ${response.statusText}`)
+    }
+
+    const reader = response.body?.getReader()
+    if (!reader) throw new Error('No response body')
+
+    const decoder = new TextDecoder()
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      const chunk = decoder.decode(value)
+      const lines = chunk.split('\n').filter((line) => line.trim() !== '')
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6)
+          if (data === '[DONE]') return
+
+          try {
+            const parsed = JSON.parse(data)
+            const content = parsed.choices[0]?.delta?.content
+            if (content) yield content
+          } catch (e) {
+            // Skip invalid JSON
+          }
+        }
+      }
+    }
+  }
+}
+
 // Provider Factory
 export function createAIProvider(providerName: string, apiKey?: string): AIProvider {
   switch (providerName.toLowerCase()) {
@@ -585,6 +675,9 @@ export function createAIProvider(providerName: string, apiKey?: string): AIProvi
       return new OpenRouterProvider(apiKey)
     case 'minimax':
       return new MiniMaxProvider(apiKey)
+    case 'kimi':
+    case 'moonshot':
+      return new KimiProvider(apiKey)
     default:
       throw new Error(`Unknown AI provider: ${providerName}`)
   }
