@@ -6,7 +6,10 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
-    "start": "next start"
+    "start": "next start",
+    "setup-supabase": "tsx scripts/setup-supabase.ts",
+    "setup-supabase:interactive": "tsx scripts/setup-supabase.ts --setup",
+    "test-supabase": "tsx scripts/test-supabase-connection.ts"
   },
   "dependencies": {
     "@ai-sdk/groq": "latest",

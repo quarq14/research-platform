@@ -12,7 +12,7 @@ import { useLocale } from "@/contexts/LocaleContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { getSupabase } from "@/lib/supabase"
+import { createBrowserClient } from "@/lib/supabase"
 
 export default function DashboardPage() {
   const { t, locale } = useLocale()
@@ -31,7 +31,7 @@ export default function DashboardPage() {
     const loadProfile = async () => {
       if (!user) return
 
-      const supabase = getSupabase()
+      const supabase = createBrowserClient()
       if (!supabase) return
 
       try {

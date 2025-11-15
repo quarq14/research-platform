@@ -3,7 +3,7 @@
 import type React from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 import type { User } from "@supabase/supabase-js"
-import { getSupabase, isSupabaseConfigured } from "@/lib/supabase"
+import { createBrowserClient, isSupabaseConfigured } from "@/lib/supabase"
 
 interface AuthContextType {
   user: User | null
@@ -30,7 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return
     }
 
-    const supabase = getSupabase()
+    const supabase = createBrowserClient()
 
     if (!supabase) {
       setLoading(false)
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     if (!isConfigured) return
 
-    const supabase = getSupabase()
+    const supabase = createBrowserClient()
     if (!supabase) return
 
     await supabase.auth.signOut()

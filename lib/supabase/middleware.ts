@@ -6,7 +6,7 @@ export async function updateSession(request: NextRequest) {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.warn("[v0] Supabase not configured, skipping auth check")
+    console.warn("[Supabase] Not configured, skipping auth check. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY")
     return NextResponse.next({
       request,
     })
@@ -44,7 +44,7 @@ export async function updateSession(request: NextRequest) {
 
     return supabaseResponse
   } catch (error) {
-    console.error("[v0] Middleware error:", error)
+    console.error("[Supabase] Middleware authentication error:", error)
     return NextResponse.next({
       request,
     })
