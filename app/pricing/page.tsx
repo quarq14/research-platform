@@ -1,56 +1,70 @@
 'use client'
 
+import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Check, Sparkles, BookOpen, X } from "lucide-react"
 import Link from "next/link"
 import { useLocale } from "@/contexts/LocaleContext"
-import { useState } from "react"
 
 export default function PricingPage() {
-  const { t, locale, setLocale } = useLocale()
+  const { t } = useLocale()
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly')
 
   const plans = [
     {
       id: 'free',
-      nameKey: 'pricing.free.name',
-      priceUSD: '$0',
-      priceTRY: '0₺',
-      period: locale === 'en' ? 'forever' : 'sonsuza kadar',
-      descriptionKey: 'pricing.free.description',
-      features: t('pricing.free.features') as unknown as string[],
-      cta: locale === 'en' ? 'Get Started' : 'Başla',
+      name: 'Free',
+      price: '$0',
+      period: 'forever',
+      description: 'Perfect for getting started',
+      features: [
+        'Basic AI chat',
+        'PDF upload (max 20 pages)',
+        '10 searches/month',
+        'Export to DOCX/PDF',
+        '3 drafts'
+      ],
+      cta: 'Get Started',
       href: '/auth/signup',
       popular: false,
       highlighted: false,
     },
     {
       id: 'pro',
-      nameKey: 'pricing.pro.name',
-      priceUSD: billingCycle === 'monthly' ? '$19.99' : '$199.99',
-      priceTRY: billingCycle === 'monthly' ? '399₺' : '3,999₺',
-      period: billingCycle === 'monthly'
-        ? (locale === 'en' ? 'per month' : 'aylık')
-        : (locale === 'en' ? 'per year' : 'yıllık'),
-      descriptionKey: 'pricing.pro.description',
-      features: t('pricing.pro.features') as unknown as string[],
-      cta: locale === 'en' ? 'Start Pro' : 'Pro\'ya Başla',
+      name: 'Pro',
+      price: billingCycle === 'monthly' ? '$19.99' : '$199.99',
+      period: billingCycle === 'monthly' ? 'per month' : 'per year',
+      description: 'For serious researchers and writers',
+      features: [
+        'Advanced AI models',
+        'Unlimited PDFs',
+        'Unlimited searches',
+        'Plagiarism checking (50 checks)',
+        'AI detection',
+        'Priority support',
+        '100 drafts'
+      ],
+      cta: 'Start Pro',
       href: '/checkout?plan=pro',
       popular: true,
       highlighted: true,
     },
     {
       id: 'team',
-      nameKey: 'pricing.team.name',
-      priceUSD: billingCycle === 'monthly' ? '$49.99' : '$499.99',
-      priceTRY: billingCycle === 'monthly' ? '999₺' : '9,999₺',
-      period: billingCycle === 'monthly'
-        ? (locale === 'en' ? 'per month' : 'aylık')
-        : (locale === 'en' ? 'per year' : 'yıllık'),
-      descriptionKey: 'pricing.team.description',
-      features: t('pricing.team.features') as unknown as string[],
-      cta: locale === 'en' ? 'Start Team' : 'Team\'e Başla',
+      name: 'Team',
+      price: billingCycle === 'monthly' ? '$49.99' : '$499.99',
+      period: billingCycle === 'monthly' ? 'per month' : 'per year',
+      description: 'For research teams and organizations',
+      features: [
+        'All Pro features',
+        'Team collaboration',
+        'Shared projects',
+        'Admin dashboard',
+        'API access',
+        'Unlimited drafts'
+      ],
+      cta: 'Start Team',
       href: '/checkout?plan=team',
       popular: false,
       highlighted: false,
@@ -59,22 +73,22 @@ export default function PricingPage() {
 
   const comparisonFeatures = [
     {
-      category: locale === 'en' ? 'Usage Limits' : 'Kullanım Limitleri',
+      category: 'Usage Limits',
       items: [
         {
-          feature: locale === 'en' ? 'Monthly Tokens' : 'Aylık Token',
+          feature: 'Monthly Tokens',
           free: '50,000',
           pro: '1,000,000',
           team: '5,000,000'
         },
         {
-          feature: locale === 'en' ? 'Page Uploads' : 'Sayfa Yükleme',
+          feature: 'Page Uploads',
           free: '20',
           pro: '500',
           team: '2,000'
         },
         {
-          feature: locale === 'en' ? 'Searches per Month' : 'Aylık Arama',
+          feature: 'Searches per Month',
           free: '10',
           pro: '500',
           team: '2,000'
@@ -82,28 +96,28 @@ export default function PricingPage() {
       ]
     },
     {
-      category: locale === 'en' ? 'AI Features' : 'Yapay Zeka Özellikleri',
+      category: 'AI Features',
       items: [
         {
-          feature: locale === 'en' ? 'Basic AI Chat' : 'Temel AI Sohbet',
+          feature: 'Basic AI Chat',
           free: true,
           pro: true,
           team: true
         },
         {
-          feature: locale === 'en' ? 'All AI Providers' : 'Tüm AI Sağlayıcıları',
+          feature: 'All AI Providers',
           free: false,
           pro: true,
           team: true
         },
         {
-          feature: locale === 'en' ? 'Custom AI Models' : 'Özel AI Modelleri',
+          feature: 'Custom AI Models',
           free: false,
           pro: true,
           team: true
         },
         {
-          feature: locale === 'en' ? 'API Access' : 'API Erişimi',
+          feature: 'API Access',
           free: false,
           pro: false,
           team: true
@@ -111,34 +125,34 @@ export default function PricingPage() {
       ]
     },
     {
-      category: locale === 'en' ? 'Research Tools' : 'Araştırma Araçları',
+      category: 'Research Tools',
       items: [
         {
-          feature: locale === 'en' ? 'PDF Upload & Chat' : 'PDF Yükleme ve Sohbet',
+          feature: 'PDF Upload & Chat',
           free: true,
           pro: true,
           team: true
         },
         {
-          feature: locale === 'en' ? 'Academic Search' : 'Akademik Arama',
+          feature: 'Academic Search',
           free: true,
           pro: true,
           team: true
         },
         {
-          feature: locale === 'en' ? 'Writing Assistant' : 'Yazma Asistanı',
+          feature: 'Writing Assistant',
           free: true,
           pro: true,
           team: true
         },
         {
-          feature: locale === 'en' ? 'Plagiarism Checker' : 'İntihal Denetleyici',
+          feature: 'Plagiarism Checker',
           free: false,
           pro: '50 checks',
-          team: locale === 'en' ? 'Unlimited' : 'Sınırsız'
+          team: 'Unlimited'
         },
         {
-          feature: locale === 'en' ? 'AI Content Detection' : 'AI İçerik Algılama',
+          feature: 'AI Content Detection',
           free: false,
           pro: true,
           team: true
@@ -146,22 +160,22 @@ export default function PricingPage() {
       ]
     },
     {
-      category: locale === 'en' ? 'Collaboration' : 'İşbirliği',
+      category: 'Collaboration',
       items: [
         {
-          feature: locale === 'en' ? 'Team Members' : 'Takım Üyeleri',
+          feature: 'Team Members',
           free: '1',
           pro: '1',
           team: '5+'
         },
         {
-          feature: locale === 'en' ? 'Shared Projects' : 'Paylaşılan Projeler',
+          feature: 'Shared Projects',
           free: false,
           pro: false,
           team: true
         },
         {
-          feature: locale === 'en' ? 'Admin Dashboard' : 'Yönetici Paneli',
+          feature: 'Admin Dashboard',
           free: false,
           pro: false,
           team: true
@@ -169,22 +183,22 @@ export default function PricingPage() {
       ]
     },
     {
-      category: locale === 'en' ? 'Support' : 'Destek',
+      category: 'Support',
       items: [
         {
-          feature: locale === 'en' ? 'Email Support' : 'E-posta Desteği',
+          feature: 'Email Support',
           free: true,
           pro: true,
           team: true
         },
         {
-          feature: locale === 'en' ? 'Priority Support' : 'Öncelikli Destek',
+          feature: 'Priority Support',
           free: false,
           pro: true,
           team: true
         },
         {
-          feature: locale === 'en' ? 'Dedicated Support' : 'Özel Destek',
+          feature: 'Dedicated Support',
           free: false,
           pro: false,
           team: true
@@ -208,12 +222,6 @@ export default function PricingPage() {
             </span>
           </Link>
           <div className="flex gap-2 items-center">
-            <button
-              onClick={() => setLocale(locale === 'en' ? 'tr' : 'en')}
-              className="text-sm font-medium text-gray-700 hover:text-blue-600 transition mr-2"
-            >
-              {locale === 'en' ? '🇹🇷 TR' : '🇬🇧 EN'}
-            </button>
             <Button variant="ghost" asChild>
               <Link href="/auth/login">{t('auth.signIn')}</Link>
             </Button>
@@ -225,10 +233,10 @@ export default function PricingPage() {
         {/* Page Header */}
         <div className="text-center mb-12 max-w-3xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-            {t('pricing.title')}
+            Simple, Transparent Pricing
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
-            {t('pricing.subtitle')}
+            Choose the perfect plan for your research and writing needs
           </p>
 
           {/* Billing Toggle */}
@@ -241,7 +249,7 @@ export default function PricingPage() {
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
               }`}
             >
-              {t('pricing.monthly')}
+              Monthly
             </button>
             <button
               onClick={() => setBillingCycle('yearly')}
@@ -251,9 +259,9 @@ export default function PricingPage() {
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
               }`}
             >
-              {t('pricing.yearly')}
+              Yearly
               <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">
-                {t('pricing.save')}
+                Save 20%
               </span>
             </button>
           </div>
@@ -273,18 +281,18 @@ export default function PricingPage() {
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                   <span className="bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
-                    {locale === 'en' ? 'MOST POPULAR' : 'EN POPÜLER'}
+                    MOST POPULAR
                   </span>
                 </div>
               )}
               <CardHeader className="text-center pb-4">
-                <CardTitle className="text-2xl font-bold">{t(plan.nameKey)}</CardTitle>
+                <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
                 <CardDescription className="text-base mt-2">
-                  {t(plan.descriptionKey)}
+                  {plan.description}
                 </CardDescription>
                 <div className="mt-6">
                   <div className="text-5xl font-bold text-gray-900 dark:text-gray-100">
-                    {locale === 'en' ? plan.priceUSD : plan.priceTRY}
+                    {plan.price}
                   </div>
                   <div className="text-sm text-gray-600 dark:text-gray-400 mt-2">
                     {plan.period}
@@ -319,7 +327,7 @@ export default function PricingPage() {
         {/* Feature Comparison Table */}
         <div className="max-w-6xl mx-auto mb-16">
           <h2 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            {locale === 'en' ? 'Detailed Comparison' : 'Detaylı Karşılaştırma'}
+            Detailed Comparison
           </h2>
           <Card className="overflow-hidden">
             <CardContent className="p-0">
@@ -328,16 +336,16 @@ export default function PricingPage() {
                   <thead className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                     <tr>
                       <th className="text-left p-4 font-semibold text-gray-900 dark:text-gray-100">
-                        {locale === 'en' ? 'Features' : 'Özellikler'}
+                        Features
                       </th>
                       <th className="text-center p-4 font-semibold text-gray-900 dark:text-gray-100">
-                        {t('pricing.free.name')}
+                        Free
                       </th>
                       <th className="text-center p-4 font-semibold text-blue-600 bg-blue-50 dark:bg-blue-900/20">
-                        {t('pricing.pro.name')}
+                        Pro
                       </th>
                       <th className="text-center p-4 font-semibold text-gray-900 dark:text-gray-100">
-                        {t('pricing.team.name')}
+                        Team
                       </th>
                     </tr>
                   </thead>
@@ -413,41 +421,25 @@ export default function PricingPage() {
         {/* FAQ Section */}
         <div className="max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            {locale === 'en' ? 'Frequently Asked Questions' : 'Sık Sorulan Sorular'}
+            Frequently Asked Questions
           </h2>
           <div className="space-y-4">
             {[
               {
-                q: locale === 'en'
-                  ? 'Can I switch plans later?'
-                  : 'Planımı daha sonra değiştirebilir miyim?',
-                a: locale === 'en'
-                  ? 'Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately.'
-                  : 'Evet! Planınızı istediğiniz zaman yükseltebilir veya düşürebilirsiniz. Değişiklikler hemen geçerli olur.'
+                q: 'Can I switch plans later?',
+                a: 'Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately.'
               },
               {
-                q: locale === 'en'
-                  ? 'What payment methods do you accept?'
-                  : 'Hangi ödeme yöntemlerini kabul ediyorsunuz?',
-                a: locale === 'en'
-                  ? 'We accept credit cards, PayPal, and for Turkish users, we support iyzico for local payments.'
-                  : 'Kredi kartı, PayPal ve Türk kullanıcılar için iyzico ile yerel ödemeler kabul ediyoruz.'
+                q: 'What payment methods do you accept?',
+                a: 'We accept major credit cards via PayPal and iyzico for international and regional payments.'
               },
               {
-                q: locale === 'en'
-                  ? 'Is there a free trial for paid plans?'
-                  : 'Ücretli planlar için ücretsiz deneme var mı?',
-                a: locale === 'en'
-                  ? 'Yes! All paid plans include a 14-day free trial. No credit card required to start.'
-                  : 'Evet! Tüm ücretli planlar 14 günlük ücretsiz deneme içerir. Başlamak için kredi kartı gerekmez.'
+                q: 'Is there a free trial for paid plans?',
+                a: 'All paid features are available with usage quotas. The Free plan lets you test the platform before upgrading.'
               },
               {
-                q: locale === 'en'
-                  ? 'Can I get a refund?'
-                  : 'Para iadesi alabilir miyim?',
-                a: locale === 'en'
-                  ? 'We offer a 14-day money-back guarantee for all paid plans. No questions asked.'
-                  : 'Tüm ücretli planlar için 14 günlük para iade garantisi sunuyoruz. Soru sorulmaz.'
+                q: 'Can I get a refund?',
+                a: 'We offer a 14-day money-back guarantee for all paid plans. No questions asked.'
               }
             ].map((faq, idx) => (
               <Card key={idx} className="hover:shadow-lg transition-shadow">
@@ -467,19 +459,15 @@ export default function PricingPage() {
           <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-none shadow-2xl">
             <CardContent className="p-8 md:p-12">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                {locale === 'en'
-                  ? 'Ready to accelerate your research?'
-                  : 'Araştırmanızı hızlandırmaya hazır mısınız?'}
+                Ready to accelerate your research?
               </h2>
               <p className="text-xl mb-8 opacity-90">
-                {locale === 'en'
-                  ? 'Join thousands of researchers and students using AI to transform their work'
-                  : 'Çalışmalarını dönüştürmek için yapay zeka kullanan binlerce araştırmacı ve öğrenciye katılın'}
+                Join thousands of researchers and students using AI to transform their work
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" variant="secondary" asChild className="text-lg px-8">
                   <Link href="/auth/signup">
-                    {locale === 'en' ? 'Start Free' : 'Ücretsiz Başla'}
+                    Start Free
                   </Link>
                 </Button>
                 <Button
@@ -489,7 +477,7 @@ export default function PricingPage() {
                   className="text-lg px-8 bg-transparent border-2 border-white text-white hover:bg-white hover:text-blue-600"
                 >
                   <Link href="/dashboard">
-                    {locale === 'en' ? 'Try Demo' : 'Demoyu Dene'}
+                    Try Demo
                   </Link>
                 </Button>
               </div>
@@ -502,18 +490,17 @@ export default function PricingPage() {
       <footer className="border-t bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm py-8 mt-16">
         <div className="container mx-auto px-4 text-center text-gray-600 dark:text-gray-400">
           <p>
-            &copy; 2025 {t('common.appName')}.{' '}
-            {locale === 'en' ? 'All rights reserved.' : 'Tüm hakları saklıdır.'}
+            &copy; 2025 {t('common.appName')}. All rights reserved.
           </p>
           <div className="flex justify-center gap-6 mt-4 text-sm">
             <Link href="/terms" className="hover:text-blue-600 transition">
-              {locale === 'en' ? 'Terms' : 'Şartlar'}
+              Terms
             </Link>
             <Link href="/privacy" className="hover:text-blue-600 transition">
-              {locale === 'en' ? 'Privacy' : 'Gizlilik'}
+              Privacy
             </Link>
             <Link href="/" className="hover:text-blue-600 transition">
-              {locale === 'en' ? 'Home' : 'Ana Sayfa'}
+              Home
             </Link>
           </div>
         </div>
@@ -521,5 +508,3 @@ export default function PricingPage() {
     </div>
   )
 }
-
-import type React from 'react'
