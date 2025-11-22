@@ -1,13 +1,8 @@
 import { createServerClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
-import { streamText } from "ai"
-import { createGroq } from "@ai-sdk/groq"
+import { routeModelRequest, ChatMessage } from "@/lib/ai/model-router"
 
 export const dynamic = "force-dynamic"
-
-const groq = createGroq({
-  apiKey: process.env.API_KEY_GROQ_API_KEY || "",
-})
 
 const modePrompts = {
   standard: "Paraphrase the following text while maintaining its meaning and academic tone. Keep all citations intact.",
@@ -44,9 +39,11 @@ export async function POST(req: Request) {
 
     const prompt = modePrompts[mode as keyof typeof modePrompts] || modePrompts.standard
 
-    const result = await streamText({
-      model: groq("llama-3.3-70b-versatile"),
-      system: `You are an expert academic writing assistant. Your task is to paraphrase text while:
+    // Prepare messages for the AI model router
+    const messages: ChatMessage[] = [
+      {
+        role: 'system',
+        content: `You are an expert academic writing assistant. Your task is to paraphrase text while:
 1. Maintaining factual accuracy
 2. Preserving all citations and references
 3. Keeping the academic integrity
@@ -54,10 +51,21 @@ export async function POST(req: Request) {
 5. Never fabricating information
 
 ${prompt}`,
-      prompt: text,
-    })
+      },
+      {
+        role: 'user',
+        content: text,
+      },
+    ]
 
-    const paraphrasedText = await result.text
+    // Use the intelligent routing system with automatic fallback to Groq
+    const result = await routeModelRequest(
+      user.id,
+      'paraphrase', // feature type
+      messages,
+      0.7, // temperature
+      2000 // max tokens
+    )
 
     // Log usage
     await supabase.from("usage_events").insert({
@@ -65,9 +73,18 @@ ${prompt}`,
       type: "paraphrase",
       amount: text.length,
       unit: "characters",
+      metadata: {
+        model_used: result.model_used,
+        provider_used: result.provider_used,
+        fell_back_to_default: result.fell_back_to_default,
+      },
     })
 
-    return NextResponse.json({ paraphrasedText })
+    return NextResponse.json({
+      paraphrasedText: result.response,
+      model_used: result.model_used,
+      provider_used: result.provider_used,
+    })
   } catch (error) {
     console.error("[v0] Paraphrase error:", error)
     return NextResponse.json({ error: "Failed to paraphrase text" }, { status: 500 })

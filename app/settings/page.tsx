@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { AISettings } from "@/components/ai-settings"
+import { AIModelSettings } from "@/components/ai-model-settings"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default async function SettingsPage() {
@@ -34,12 +35,17 @@ export default async function SettingsPage() {
           <p className="text-gray-600 dark:text-gray-400 mt-2">Manage your account, AI preferences, and integrations</p>
         </div>
 
-        <Tabs defaultValue="ai" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="ai">AI Settings</TabsTrigger>
+        <Tabs defaultValue="ai-models" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="ai-models">AI Models</TabsTrigger>
+            <TabsTrigger value="ai">Legacy AI</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="usage">Usage</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="ai-models">
+            <AIModelSettings />
+          </TabsContent>
 
           <TabsContent value="ai">
             <AISettings />
