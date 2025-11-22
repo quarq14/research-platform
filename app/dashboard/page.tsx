@@ -19,20 +19,21 @@ export default function DashboardPage() {
   const { user, loading } = useAuth()
   const router = useRouter()
   const [profile, setProfile] = useState<any>(null)
-  const [loadingProfile, setLoadingProfile] = useState(true)
+  const [loadingProfile, setLoadingProfile] = useState(false)
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/auth/login')
-    }
-  }, [user, loading, router])
-
+  // Allow access without authentication for local development
   useEffect(() => {
     const loadProfile = async () => {
-      if (!user) return
+      if (!user) {
+        setLoadingProfile(false)
+        return
+      }
 
       const supabase = getSupabase()
-      if (!supabase) return
+      if (!supabase) {
+        setLoadingProfile(false)
+        return
+      }
 
       try {
         const { data, error } = await supabase
@@ -63,10 +64,6 @@ export default function DashboardPage() {
         </div>
       </div>
     )
-  }
-
-  if (!user) {
-    return null
   }
 
   const stats = [

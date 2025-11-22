@@ -6,5 +6,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/upload/:path*", "/chat/:path*", "/write/:path*", "/sources/:path*"],
+  // Disable authentication requirement for local development
+  // All pages are now accessible without login
+  matcher: [],
 }

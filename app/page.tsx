@@ -121,29 +121,32 @@ export default function HomePage() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
-            <Link href="#features" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition">
+            <Link href="#features" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 transition">
               {t('home.features.title')}
             </Link>
-            <Link href="#pricing" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition">
-              {t('nav.pricing')}
+            <Link href="/tools" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 transition">
+              {locale === 'en' ? 'Tools' : 'Araçlar'}
             </Link>
-            <Link href="/dashboard" className="text-sm font-medium text-gray-700 hover:text-blue-600 transition">
+            <Link href="/dashboard" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 transition">
               {t('nav.dashboard')}
+            </Link>
+            <Link href="/pricing" className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 transition">
+              {t('nav.pricing')}
             </Link>
             <button
               onClick={() => setLocale(locale === 'en' ? 'tr' : 'en')}
-              className="text-sm font-medium text-gray-700 hover:text-blue-600 transition"
+              className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 transition"
             >
               {locale === 'en' ? '🇹🇷 TR' : '🇬🇧 EN'}
             </button>
           </nav>
 
           <div className="hidden md:flex gap-2">
-            <Button variant="ghost" asChild>
-              <Link href="/auth/login">{t('auth.signIn')}</Link>
-            </Button>
-            <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-              <Link href="/auth/signup">{t('home.hero.cta')}</Link>
+            <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg">
+              <Link href="/dashboard">
+                <Sparkles className="mr-2 h-4 w-4" />
+                {locale === 'en' ? 'Launch Platform' : 'Platformu Başlat'}
+              </Link>
             </Button>
           </div>
 
@@ -163,11 +166,14 @@ export default function HomePage() {
               <Link href="#features" className="text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
                 {t('home.features.title')}
               </Link>
-              <Link href="#pricing" className="text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
-                {t('nav.pricing')}
+              <Link href="/tools" className="text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
+                {locale === 'en' ? 'Tools' : 'Araçlar'}
               </Link>
               <Link href="/dashboard" className="text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
                 {t('nav.dashboard')}
+              </Link>
+              <Link href="/pricing" className="text-sm font-medium" onClick={() => setMobileMenuOpen(false)}>
+                {t('nav.pricing')}
               </Link>
               <button
                 onClick={() => {
@@ -178,12 +184,12 @@ export default function HomePage() {
               >
                 {locale === 'en' ? '🇹🇷 Türkçe' : '🇬🇧 English'}
               </button>
-              <div className="flex flex-col gap-2 pt-4 border-t">
-                <Button variant="outline" asChild>
-                  <Link href="/auth/login">{t('auth.signIn')}</Link>
-                </Button>
-                <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600">
-                  <Link href="/auth/signup">{t('home.hero.cta')}</Link>
+              <div className="pt-4 border-t">
+                <Button asChild className="w-full bg-gradient-to-r from-blue-600 to-purple-600">
+                  <Link href="/dashboard">
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    {locale === 'en' ? 'Launch Platform' : 'Platformu Başlat'}
+                  </Link>
                 </Button>
               </div>
             </nav>
@@ -212,16 +218,16 @@ export default function HomePage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button size="lg" asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all">
-                <Link href="/auth/signup">
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  {t('home.hero.cta')}
+              <Button size="lg" asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all text-lg px-8 py-6">
+                <Link href="/dashboard">
+                  <Sparkles className="mr-2 h-6 w-6" />
+                  {locale === 'en' ? 'Start Research Now' : 'Hemen Başla'}
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="border-2 hover:bg-gray-50 dark:hover:bg-gray-800">
-                <Link href="/dashboard">
-                  <Bot className="mr-2 h-5 w-5" />
-                  {t('home.hero.demo')}
+              <Button size="lg" variant="outline" asChild className="border-2 hover:bg-gray-50 dark:hover:bg-gray-800 text-lg px-8 py-6">
+                <Link href="/tools">
+                  <Bot className="mr-2 h-6 w-6" />
+                  {locale === 'en' ? 'Explore Tools' : 'Araçları Keşfet'}
                 </Link>
               </Button>
             </div>
@@ -435,23 +441,27 @@ export default function HomePage() {
 
         {/* Final CTA */}
         <section className="container mx-auto px-4 py-16 md:py-20">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 md:p-12 text-center text-white shadow-2xl">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              {locale === 'en'
-                ? 'Ready to Transform Your Research?'
-                : 'Araştırmanızı Dönüştürmeye Hazır mısınız?'}
-            </h2>
-            <p className="text-xl mb-8 opacity-90">
-              {locale === 'en'
-                ? 'Join thousands of researchers and students using AI to accelerate their work'
-                : 'Çalışmalarını hızlandırmak için yapay zeka kullanan binlerce araştırmacı ve öğrenciye katılın'}
-            </p>
-            <Button size="lg" variant="secondary" asChild className="text-lg px-8">
-              <Link href="/auth/signup">
-                {t('home.hero.cta')}
-                <ChevronRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
+          <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-3xl p-8 md:p-12 text-center text-white shadow-2xl relative overflow-hidden">
+            <div className="absolute inset-0 bg-black/10"></div>
+            <div className="relative z-10">
+              <h2 className="text-3xl md:text-5xl font-bold mb-4">
+                {locale === 'en'
+                  ? 'Ready to Transform Your Research?'
+                  : 'Araştırmanızı Dönüştürmeye Hazır mısınız?'}
+              </h2>
+              <p className="text-xl md:text-2xl mb-8 opacity-95">
+                {locale === 'en'
+                  ? 'Start using AI-powered research tools instantly. No signup required.'
+                  : 'Yapay zeka destekli araştırma araçlarını hemen kullanmaya başlayın. Kayıt gereksiz.'}
+              </p>
+              <Button size="lg" variant="secondary" asChild className="text-lg px-10 py-6 shadow-xl hover:scale-105 transition-transform">
+                <Link href="/dashboard">
+                  <Sparkles className="mr-2 h-6 w-6" />
+                  {locale === 'en' ? 'Launch Platform Now' : 'Platformu Hemen Başlat'}
+                  <ChevronRight className="ml-2 h-6 w-6" />
+                </Link>
+              </Button>
+            </div>
           </div>
         </section>
       </main>

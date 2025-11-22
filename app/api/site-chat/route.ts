@@ -1,5 +1,5 @@
 import { createServerClient } from "@/lib/supabase/server"
-import { chatCompletion, getUserAIPreferences, getUserAPIKey, AIConfig, ChatMessage } from "@/lib/ai-providers"
+import { routeModelRequest, ChatMessage } from "@/lib/ai/model-router"
 
 export const dynamic = "force-dynamic"
 export const maxDuration = 30
@@ -15,26 +15,17 @@ export async function POST(req: Request) {
 
     const supabase = await createServerClient()
     let userName = "there"
-    let aiConfig: AIConfig = { provider: 'groq' } // Default to Groq (free)
+    let userId: string | null = null
 
     if (supabase) {
       const {
         data: { user },
       } = await supabase.auth.getUser()
       if (user) {
+        userId = user.id
         const { data: profile } = await supabase.from("profiles").select("full_name").eq("id", user.id).single()
         if (profile?.full_name) {
           userName = profile.full_name
-        }
-
-        // Get user's AI preferences
-        const preferences = await getUserAIPreferences(user.id, supabase)
-        const apiKey = await getUserAPIKey(user.id, preferences.provider, supabase)
-
-        aiConfig = {
-          provider: preferences.provider,
-          model: preferences.model,
-          apiKey: apiKey || undefined,
         }
       }
     }
@@ -62,10 +53,21 @@ The user's name is ${userName}.`
       ...messages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content }))
     ]
 
-    // Use the unified AI provider system
-    const assistantMessage = await chatCompletion(aiConfig, chatMessages, 0.7, 1000)
+    // Use the new intelligent routing system with automatic fallback to Groq
+    const result = await routeModelRequest(
+      userId,
+      'chat', // feature type
+      chatMessages,
+      0.7, // temperature
+      1000 // max tokens
+    )
 
-    return new Response(JSON.stringify({ message: assistantMessage }), {
+    return new Response(JSON.stringify({
+      message: result.response,
+      model_used: result.model_used,
+      provider_used: result.provider_used,
+      fell_back_to_default: result.fell_back_to_default
+    }), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     })
