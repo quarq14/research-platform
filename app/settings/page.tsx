@@ -12,18 +12,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default async function SettingsPage() {
   const supabase = await createServerClient()
-  if (!supabase) {
-    redirect("/auth/login")
-  }
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) {
-    redirect("/auth/login")
-  }
+  let user = null
+  let profile = null
 
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+  // Allow access without authentication for local development
+  if (supabase) {
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser()
+    user = authUser
+
+    if (user) {
+      const { data: profileData } = await supabase.from("profiles").select("*").eq("id", user.id).single()
+      profile = profileData
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-blue-900 dark:to-purple-900 p-8">
@@ -60,13 +64,17 @@ export default async function SettingsPage() {
               <CardContent className="space-y-4">
                 <div>
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" value={user.email || ""} disabled />
+                  <Input id="email" type="email" value={user?.email || "guest@local.dev"} disabled />
                 </div>
                 <div>
                   <Label htmlFor="plan">Current Plan</Label>
                   <Input id="plan" value={profile?.plan || "free"} disabled />
                 </div>
-                <Button>Update Profile</Button>
+                {user ? (
+                  <Button>Update Profile</Button>
+                ) : (
+                  <p className="text-sm text-gray-500">Login to update your profile</p>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
